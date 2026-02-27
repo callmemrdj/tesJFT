@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>Kanji - Hiragana Matching Game</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      body {
+        background: linear-gradient(135deg, #e6f2ff 0%, #cce0ff 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        overflow-x: hidden;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 15px;
+        width: 100%;
+      }
+
+      h1 {
+        color: #2c5282;
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      }
+
+      .game-info {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 500px;
+        margin-bottom: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 12px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .info-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+      }
+
+      .info-label {
+        font-size: 0.75rem;
+        color: #4a5568;
+        margin-bottom: 3px;
+        font-weight: 600;
+      }
+
+      .info-value {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #2c5282;
+      }
+
+      .timer {
+        color: #e53e3e;
+      }
+
+      .game-container {
+        width: 100%;
+        max-width: 500px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 20px;
+        padding: 0 5px;
+      }
+
+      .card {
+        aspect-ratio: 1;
+        background: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+        min-height: 60px;
+        border: 2px solid transparent;
+      }
+
+      .card:active {
+        transform: scale(0.95);
+      }
+
+      .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .card.selected {
+        background: #bee3f8;
+        transform: scale(0.95);
+        border-color: #4299e1;
+      }
+
+      .card.matched {
+        background: #9ae6b4;
+        pointer-events: none;
+        animation: matchPulse 0.4s ease;
+        border-color: #48bb78;
+      }
+
+      .card.wrong {
+        background: #fed7d7;
+        animation: shake 0.4s ease;
+        border-color: #fc8181;
+      }
+
+      .card-type {
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        font-size: 0.5rem;
+        color: #718096;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 1px 3px;
+        border-radius: 3px;
+        font-weight: 600;
+      }
+
+      .message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        z-index: 1000;
+        display: none;
+        width: 90%;
+        max-width: 350px;
+      }
+
+      .message h2 {
+        margin-bottom: 15px;
+        color: #2c5282;
+        font-size: 1.5rem;
+      }
+
+      .message p {
+        margin-bottom: 20px;
+        color: #4a5568;
+        font-size: 1rem;
+      }
+
+      .btn {
+        background: #4299e1;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .btn:active {
+        transform: scale(0.95);
+      }
+
+      .btn:hover {
+        background: #3182ce;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .lives {
+        display: flex;
+        gap: 3px;
+        justify-content: center;
+      }
+
+      .heart {
+        font-size: 1.2rem;
+        color: #e53e3e;
+      }
+
+      @keyframes matchPulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-4px);
+        }
+        75% {
+          transform: translateX(4px);
+        }
+      }
+
+      /* Mobile Optimizations */
+      @media (max-width: 480px) {
+        body {
+          padding: 5px;
+        }
+
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .game-container {
+          grid-template-columns: repeat(4, 1fr);
+          gap: 6px;
+        }
+
+        .card {
+          font-size: 1.1rem;
+          min-height: 55px;
+          border-radius: 10px;
+        }
+
+        .card-type {
+          font-size: 0.45rem;
+        }
+
+        .game-info {
+          padding: 10px;
+          gap: 5px;
+        }
+
+        .info-label {
+          font-size: 0.7rem;
+        }
+
+        .info-value {
+          font-size: 1.1rem;
+        }
+      }
+
+      /* Landscape mode for mobile */
+      @media (max-height: 600px) and (orientation: landscape) {
+        header {
+          margin-bottom: 10px;
+        }
+
+        h1 {
+          font-size: 1.4rem;
+          margin-bottom: 5px;
+        }
+
+        .game-info {
+          margin-bottom: 10px;
+          padding: 8px;
+        }
+
+        .game-container {
+          margin-bottom: 10px;
+        }
+
+        .card {
+          min-height: 50px;
+          font-size: 1rem;
+        }
+      }
+
+      /* Prevent scrolling on mobile */
+      html,
+      body {
+        overflow: hidden;
+        touch-action: manipulation;
+      }
+
+      /* Optimize for touch */
+      @media (hover: none) {
+        .card:hover {
+          transform: none;
+        }
+
+        .card:active {
+          transform: scale(0.95);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Kanji Matching Mr.DJ</h1>
+    </header>
+
+    <main>
+      <div class="game-info">
+        <div class="info-item">
+          <span class="info-label">Timer</span>
+          <span class="info-value timer" id="timer">02:00</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Skor</span>
+          <span class="info-value" id="score">0</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Nyawa</span>
+          <div class="lives" id="lives">
+            <span class="heart">❤️</span>
+            <span class="heart">❤️</span>
+            <span class="heart">❤️</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-container" id="gameContainer"></div>
+    </main>
+
+    <div class="message" id="message">
+      <h2 id="messageTitle">Game Over</h2>
+      <p id="messageText">Waktu habis! Coba lagi.</p>
+      <button class="btn" id="restartBtn">Main Lagi</button>
+    </div>
+
+    <script>
+      // Data Kanji dan Hiragana
+      const kanjiHiraganaPairs = [
+        { kanji: '父', hiragana: 'ちち' },
+        { kanji: '母', hiragana: 'はは' },
+        { kanji: '妹', hiragana: 'いもうと' },
+        { kanji: '兄', hiragana: 'あに' },
+        { kanji: '姉', hiragana: 'あね' },
+        { kanji: '子供', hiragana: 'こども' },
+        { kanji: '男', hiragana: 'おとこ' },
+        { kanji: '女', hiragana: 'おんな' },
+        { kanji: '弟', hiragana: 'おとうと' },
+        { kanji: '娘', hiragana: 'むすめ' },
+      ];
+
+      // Game state
+      let cards = [];
+      let selectedCards = [];
+      let matchedPairs = 0;
+      let lives = 3;
+      let score = 0;
+      let timeLeft = 60;
+      let timerInterval;
+      let isProcessing = false;
+
+      // DOM elements
+      const gameContainer = document.getElementById('gameContainer');
+      const timerElement = document.getElementById('timer');
+      const scoreElement = document.getElementById('score');
+      const livesElement = document.getElementById('lives');
+      const messageElement = document.getElementById('message');
+      const messageTitle = document.getElementById('messageTitle');
+      const messageText = document.getElementById('messageText');
+      const restartBtn = document.getElementById('restartBtn');
+
+      // Vibration feedback for mobile
+      function vibrate(duration = 50) {
+        if ('vibrate' in navigator) {
+          navigator.vibrate(duration);
+        }
+      }
+
+      // Initialize game
+      function initGame() {
+        cards = [];
+        selectedCards = [];
+        matchedPairs = 0;
+        lives = 3;
+        score = 0;
+        timeLeft = 60;
+        isProcessing = false;
+
+        updateScore();
+        updateLives();
+        updateTimer();
+
+        clearInterval(timerInterval);
+        timerInterval = setInterval(updateTimer, 1000);
+
+        createCards();
+        shuffleCards();
+        renderCards();
+      }
+
+      // Create cards array
+      function createCards() {
+        gameContainer.innerHTML = '';
+        cards = [];
+
+        kanjiHiraganaPairs.forEach((pair, index) => {
+          cards.push({
+            id: `kanji-${index}`,
+            content: pair.kanji,
+            type: 'kanji',
+            pairId: index,
+          });
+
+          cards.push({
+            id: `hiragana-${index}`,
+            content: pair.hiragana,
+            type: 'hiragana',
+            pairId: index,
+          });
+        });
+      }
+
+      // Shuffle cards
+      function shuffleCards() {
+        for (let i = cards.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [cards[i], cards[j]] = [cards[j], cards[i]];
+        }
+      }
+
+      // Render cards
+      function renderCards() {
+        gameContainer.innerHTML = '';
+
+        cards.forEach((card) => {
+          const cardElement = document.createElement('div');
+          cardElement.className = 'card';
+          cardElement.dataset.id = card.id;
+          cardElement.dataset.type = card.type;
+          cardElement.dataset.pairId = card.pairId;
+          cardElement.textContent = card.content;
+
+          const typeIndicator = document.createElement('span');
+          typeIndicator.className = 'card-type';
+          typeIndicator.textContent = card.type === 'kanji' ? 'K' : 'H';
+          cardElement.appendChild(typeIndicator);
+
+          cardElement.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            selectCard(cardElement);
+          });
+
+          cardElement.addEventListener('click', (e) => {
+            e.preventDefault();
+            selectCard(cardElement);
+          });
+
+          gameContainer.appendChild(cardElement);
+        });
+      }
+
+      // Handle card selection
+      function selectCard(cardElement) {
+        if (isProcessing) return;
+
+        if (cardElement.classList.contains('matched') || cardElement.classList.contains('selected')) {
+          return;
+        }
+
+        cardElement.classList.add('selected');
+        selectedCards.push(cardElement);
+
+        if (selectedCards.length === 2) {
+          isProcessing = true;
+          checkMatch();
+        }
+      }
+
+      // Check if selected cards match
+      function checkMatch() {
+        const [card1, card2] = selectedCards;
+
+        if (card1.dataset.pairId === card2.dataset.pairId && card1.dataset.type !== card2.dataset.type) {
+          // Match found
+          setTimeout(() => {
+            card1.classList.add('matched');
+            card2.classList.add('matched');
+            card1.classList.remove('selected');
+            card2.classList.remove('selected');
+
+            matchedPairs++;
+            score += 10;
+            updateScore();
+
+            // Success vibration
+            vibrate(30);
+
+            if (matchedPairs === kanjiHiraganaPairs.length) {
+              endGame(true);
+            }
+
+            selectedCards = [];
+            isProcessing = false;
+          }, 400);
+        } else {
+          // No match
+          setTimeout(() => {
+            card1.classList.add('wrong');
+            card2.classList.add('wrong');
+
+            // Error vibration
+            vibrate([50, 30, 50]);
+
+            setTimeout(() => {
+              card1.classList.remove('selected', 'wrong');
+              card2.classList.remove('selected', 'wrong');
+              selectedCards = [];
+              isProcessing = false;
+            }, 400);
+          }, 300);
+
+          lives--;
+          updateLives();
+
+          if (lives <= 0) {
+            endGame(false);
+          }
+        }
+      }
+
+      // Update score display
+      function updateScore() {
+        scoreElement.textContent = score;
+      }
+
+      // Update lives display
+      function updateLives() {
+        livesElement.innerHTML = '';
+        for (let i = 0; i < 3; i++) {
+          const heart = document.createElement('span');
+          heart.className = 'heart';
+          heart.textContent = i < lives ? '❤️' : '🤍';
+          livesElement.appendChild(heart);
+        }
+      }
+
+      // Update timer
+      function updateTimer() {
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          endGame(false);
+          return;
+        }
+
+        timeLeft--;
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        if (timeLeft <= 30) {
+          timerElement.style.color = '#e53e3e';
+          if (timeLeft <= 10 && timeLeft > 0) {
+            vibrate(100);
+          }
+        } else if (timeLeft <= 60) {
+          timerElement.style.color = '#dd6b20';
+        }
+      }
+
+      // End game
+      function endGame(isWin) {
+        clearInterval(timerInterval);
+        isProcessing = true;
+
+        if (isWin) {
+          messageTitle.textContent = 'Selamat! 🎉';
+          messageText.textContent = `Anda berhasil mencocokkan semua pasangan!\nSkor: ${score}`;
+          vibrate([100, 50, 100, 50, 200]);
+        } else {
+          if (lives <= 0) {
+            messageTitle.textContent = 'Game Over 😢';
+            messageText.textContent = `Nyawa habis!\nSkor: ${score}`;
+          } else {
+            messageTitle.textContent = 'Waktu Habis ⏰';
+            messageText.textContent = `Waktu habis!\nSkor: ${score}`;
+          }
+          vibrate(200);
+        }
+
+        messageElement.style.display = 'block';
+      }
+
+      // Restart game
+      restartBtn.addEventListener('click', () => {
+        messageElement.style.display = 'none';
+        initGame();
+      });
+
+      // Handle orientation change
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+          renderCards();
+        }, 100);
+      });
+
+      // Prevent zoom on double tap
+      let lastTouchEnd = 0;
+      document.addEventListener(
+        'touchend',
+        (e) => {
+          const now = Date.now();
+          if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+          }
+          lastTouchEnd = now;
+        },
+        false,
+      );
+
+      // Initialize game on load
+      window.addEventListener('load', initGame);
+    </script>
+  </body>
+</html>
