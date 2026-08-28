@@ -1,0 +1,1538 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Simulasi JFT Basic - Mr.DJ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              display: ['"Space Grotesk"', 'sans-serif'],
+              jp: ['"Noto Sans JP"', 'sans-serif'],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      :root {
+        --bg: #060d09;
+        --card: rgba(12, 26, 18, 0.93);
+        --accent: #10b981;
+        --accent-light: #34d399;
+        --accent-glow: rgba(16, 185, 129, 0.25);
+        --fg: #ecfdf5;
+        --fg-dim: #a7c4b5;
+        --muted: #4a6b5a;
+        --border: rgba(16, 185, 129, 0.12);
+        --sel-bg: #10b981;
+        --sel-fg: #022c22;
+        --panel-bg: rgba(6, 13, 9, 0.97);
+        --panel-h: 116px;
+        --amber: #f59e0b;
+        --amber-dark: #92400e;
+        --danger: #ef4444;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: 'Space Grotesk', sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        overflow: hidden;
+        height: 100vh;
+        height: 100dvh;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      .welcome-bg {
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 600px 400px at 20% 30%, rgba(16, 185, 129, 0.07), transparent), radial-gradient(ellipse 500px 500px at 80% 70%, rgba(6, 95, 70, 0.09), transparent),
+          radial-gradient(ellipse 900px 700px at 50% 50%, rgba(16, 185, 129, 0.025), transparent), var(--bg);
+        z-index: 0;
+      }
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(90px);
+        opacity: 0.35;
+        animation: orbF 10s ease-in-out infinite;
+      }
+      .orb-1 {
+        width: 320px;
+        height: 320px;
+        background: rgba(16, 185, 129, 0.14);
+        top: 8%;
+        left: 8%;
+      }
+      .orb-2 {
+        width: 260px;
+        height: 260px;
+        background: rgba(6, 95, 70, 0.18);
+        bottom: 15%;
+        right: 8%;
+        animation-delay: -4s;
+        animation-duration: 13s;
+      }
+      .orb-3 {
+        width: 200px;
+        height: 200px;
+        background: rgba(52, 211, 153, 0.08);
+        top: 55%;
+        left: 45%;
+        animation-delay: -7s;
+        animation-duration: 15s;
+      }
+      @keyframes orbF {
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        33% {
+          transform: translate(25px, -18px) scale(1.04);
+        }
+        66% {
+          transform: translate(-18px, 12px) scale(0.96);
+        }
+      }
+      .glass {
+        background: var(--card);
+        border: 1px solid var(--border);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border-radius: 20px;
+        box-shadow:
+          0 30px 60px rgba(0, 0, 0, 0.45),
+          inset 0 1px 0 rgba(255, 255, 255, 0.025);
+      }
+      .name-input {
+        background: rgba(6, 13, 9, 0.8);
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        padding: 14px 18px;
+        color: var(--fg);
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 16px;
+        width: 100%;
+        outline: none;
+        transition:
+          border-color 0.3s,
+          box-shadow 0.3s;
+      }
+      .name-input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+      }
+      .name-input::placeholder {
+        color: var(--muted);
+      }
+      .btn-start {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #022c22;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        padding: 14px 44px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.25s;
+        box-shadow: 0 4px 18px rgba(16, 185, 129, 0.3);
+        letter-spacing: 0.3px;
+      }
+      .btn-start:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(16, 185, 129, 0.4);
+      }
+      .btn-start:active:not(:disabled) {
+        transform: translateY(0);
+      }
+      .btn-start:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+      .floating-panel {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--panel-bg);
+        border-top: 1px solid var(--border);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        z-index: 100;
+        padding: 10px 12px;
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
+        box-shadow: 0 -12px 45px rgba(0, 0, 0, 0.55);
+        transition: opacity 0.4s;
+      }
+      .nav-btn {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        border: 1.5px solid var(--border);
+        background: rgba(16, 185, 129, 0.05);
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+      }
+      .nav-btn:hover:not(:disabled) {
+        background: rgba(16, 185, 129, 0.14);
+        border-color: var(--accent);
+      }
+      .nav-btn:active:not(:disabled) {
+        transform: scale(0.9);
+      }
+      .nav-btn:disabled {
+        opacity: 0.2;
+        cursor: not-allowed;
+      }
+      .submit-btn {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, var(--amber), #d97706);
+        color: var(--amber-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+        box-shadow: 0 2px 10px rgba(245, 158, 11, 0.25);
+      }
+      .submit-btn:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+      }
+      .submit-btn:active:not(:disabled) {
+        transform: scale(0.92);
+      }
+      .submit-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .submit-btn.done {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #022c22;
+      }
+      .answer-btn {
+        flex: 1;
+        height: 48px;
+        border-radius: 10px;
+        border: 1.5px solid var(--border);
+        background: rgba(16, 185, 129, 0.035);
+        color: var(--fg-dim);
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .answer-btn:hover:not(.selected):not(:disabled) {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.3);
+        color: var(--fg);
+      }
+      .answer-btn:active:not(.selected):not(:disabled) {
+        transform: scale(0.94);
+      }
+      .answer-btn.selected {
+        background: var(--sel-bg);
+        color: var(--sel-fg);
+        border-color: var(--sel-bg);
+        box-shadow: 0 2px 14px rgba(16, 185, 129, 0.35);
+        font-weight: 700;
+      }
+      .answer-btn.selected::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent 60%);
+        pointer-events: none;
+      }
+      .answer-btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .q-num {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--fg-dim);
+        min-width: 90px;
+        text-align: center;
+        line-height: 46px;
+        flex: 1;
+      }
+      .q-num b {
+        color: var(--accent-light);
+        font-size: 20px;
+        font-weight: 700;
+      }
+      .q-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        margin-left: 3px;
+        vertical-align: middle;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .q-dot.on {
+        opacity: 1;
+      }
+      .prog-track {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: rgba(16, 185, 129, 0.08);
+        z-index: 200;
+      }
+      .prog-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #10b981, #34d399);
+        transition: width 0.4s ease;
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+        border-radius: 0 2px 2px 0;
+      }
+      .toast {
+        position: fixed;
+        top: 14px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-80px);
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 20px;
+        color: var(--accent-light);
+        font-size: 13px;
+        font-weight: 500;
+        z-index: 300;
+        backdrop-filter: blur(12px);
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .toast.show {
+        transform: translateX(-50%) translateY(0);
+      }
+      .resume-banner {
+        background: rgba(16, 185, 129, 0.07);
+        border: 1px solid rgba(16, 185, 129, 0.18);
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 20px;
+        display: none;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: var(--fg-dim);
+      }
+      .resume-banner .material-icons-round {
+        color: var(--accent);
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+      .resume-btn {
+        margin-left: auto;
+        background: var(--accent);
+        color: var(--sel-fg);
+        border: none;
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 600;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+      }
+      .resume-btn:hover {
+        background: var(--accent-light);
+      }
+
+      /* ===== PDF Wrap — scrollable untuk zoom ===== */
+      .pdf-wrap {
+        width: 100%;
+        height: calc(100dvh - var(--panel-h));
+        height: calc(100vh - var(--panel-h));
+        background: #111;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        position: relative;
+      }
+      .pdf-wrap iframe {
+        border: none;
+        display: block;
+        transform-origin: 0 0;
+        will-change: transform;
+        transition: margin 0.15s ease;
+      }
+
+      /* ===== Zoom Bar ===== */
+      .zoom-bar {
+        position: fixed;
+        top: 10px;
+        left: 12px;
+        z-index: 150;
+        display: none;
+        align-items: center;
+        gap: 3px;
+        background: rgba(6, 13, 9, 0.88);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 4px 6px;
+        backdrop-filter: blur(10px);
+        transition: opacity 0.3s;
+      }
+      .zoom-bar.dim {
+        opacity: 0.5;
+      }
+      .zoom-bar.dim:hover {
+        opacity: 1;
+      }
+      .z-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 7px;
+        border: none;
+        background: transparent;
+        color: var(--fg-dim);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .z-btn:hover {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--fg);
+      }
+      .z-btn:active {
+        transform: scale(0.88);
+      }
+      .z-pct {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--fg-dim);
+        min-width: 36px;
+        text-align: center;
+        pointer-events: none;
+      }
+      .z-sep {
+        width: 1px;
+        height: 16px;
+        background: var(--border);
+        flex-shrink: 0;
+      }
+
+      .screen {
+        transition:
+          opacity 0.4s ease,
+          transform 0.4s ease;
+      }
+      .screen.hidden {
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        transform: scale(0.97);
+      }
+      .screen.visible {
+        opacity: 1;
+        pointer-events: auto;
+        transform: scale(1);
+      }
+      .reset-link {
+        position: fixed;
+        top: 10px;
+        right: 12px;
+        z-index: 150;
+        background: rgba(6, 13, 9, 0.88);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 5px 10px;
+        color: var(--muted);
+        font-size: 11px;
+        font-family: 'Space Grotesk', sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: none;
+        backdrop-filter: blur(10px);
+      }
+      .reset-link:hover {
+        color: var(--danger);
+        border-color: rgba(239, 68, 68, 0.3);
+      }
+
+      /* Dialog */
+      .dialog-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 500;
+        background: rgba(0, 0, 0, 0.65);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+        animation: fadeIn 0.25s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .dialog-box {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 28px 24px 22px;
+        max-width: 340px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        max-height: 85vh;
+        overflow-y: auto;
+      }
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      .dialog-box .material-icons-round.dlg-icon {
+        font-size: 38px;
+        margin-bottom: 10px;
+        display: block;
+      }
+      .dialog-box h3 {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--fg);
+        margin-bottom: 6px;
+      }
+      .dialog-box p {
+        font-size: 13px;
+        color: var(--fg-dim);
+        margin-bottom: 4px;
+        line-height: 1.5;
+      }
+      .dialog-box .warn {
+        color: var(--amber);
+        font-size: 12px;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+      }
+      .dialog-box .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        justify-content: center;
+      }
+      .dialog-box .btn-dlg {
+        flex: 1;
+        padding: 11px;
+        border-radius: 10px;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .dialog-box .btn-dlg:active {
+        transform: scale(0.96);
+      }
+      .dialog-box .btn-dlg.cancel {
+        border: 1.5px solid var(--border);
+        background: transparent;
+        color: var(--fg-dim);
+      }
+      .dialog-box .btn-dlg.cancel:hover {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+      .dialog-box .btn-dlg.green {
+        border: none;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #022c22;
+        box-shadow: 0 2px 12px rgba(16, 185, 129, 0.3);
+      }
+      .dialog-box .btn-dlg.amber {
+        border: none;
+        background: linear-gradient(135deg, var(--amber), #d97706);
+        color: var(--amber-dark);
+        box-shadow: 0 2px 12px rgba(245, 158, 11, 0.3);
+      }
+      .dialog-box .btn-dlg.red {
+        border: none;
+        background: var(--danger);
+        color: #fff;
+        box-shadow: 0 2px 12px rgba(239, 68, 68, 0.3);
+      }
+      .dialog-box .btn-dlg:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .dialog-box .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+      }
+      .dialog-box .summary-row:last-of-type {
+        border-bottom: none;
+      }
+      .dialog-box .summary-label {
+        color: var(--fg-dim);
+      }
+      .dialog-box .summary-val {
+        color: var(--fg);
+        font-weight: 600;
+      }
+      .answer-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 2px 6px;
+        text-align: left;
+        padding: 10px 12px;
+        background: rgba(0, 0, 0, 0.25);
+        border-radius: 10px;
+        margin: 8px 0 0;
+      }
+      .answer-grid span {
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.9;
+      }
+      .floating-panel.submitted .nav-row {
+        display: none;
+      }
+      .floating-panel.submitted .answer-row {
+        display: none;
+      }
+      .floating-panel.submitted .done-row {
+        display: flex !important;
+      }
+      .done-row {
+        display: none !important;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 4px 0;
+        color: var(--accent-light);
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .done-row .material-icons-round {
+        font-size: 20px;
+      }
+      .spinner {
+        width: 18px;
+        height: 18px;
+        border: 2.5px solid rgba(255, 255, 255, 0.2);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        display: inline-block;
+        vertical-align: middle;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (max-height: 580px) {
+        :root {
+          --panel-h: 96px;
+        }
+        .floating-panel {
+          padding: 6px 10px;
+          padding-bottom: max(6px, env(safe-area-inset-bottom));
+        }
+        .nav-btn,
+        .submit-btn {
+          width: 38px;
+          height: 38px;
+          border-radius: 10px;
+        }
+        .nav-btn .material-icons-round,
+        .submit-btn .material-icons-round {
+          font-size: 20px !important;
+        }
+        .answer-btn {
+          height: 40px;
+          font-size: 14px;
+          border-radius: 8px;
+        }
+        .q-num {
+          font-size: 12px;
+          min-width: 72px;
+          line-height: 38px;
+        }
+        .q-num b {
+          font-size: 17px;
+        }
+        .zoom-bar {
+          top: 6px;
+          left: 8px;
+          padding: 3px 4px;
+        }
+        .z-btn {
+          width: 26px;
+          height: 26px;
+        }
+        .z-pct {
+          font-size: 10px;
+          min-width: 30px;
+        }
+      }
+      @media (min-width: 768px) {
+        .answer-btn {
+          height: 52px;
+          font-size: 17px;
+        }
+        .nav-btn,
+        .submit-btn {
+          width: 50px;
+          height: 50px;
+        }
+        .q-num {
+          font-size: 16px;
+          min-width: 110px;
+          line-height: 50px;
+        }
+        .q-num b {
+          font-size: 24px;
+        }
+        .floating-panel {
+          padding: 14px 32px;
+        }
+        .answer-grid {
+          grid-template-columns: repeat(6, 1fr);
+          gap: 3px 8px;
+        }
+        .answer-grid span {
+          font-size: 12px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .orb {
+          animation: none !important;
+        }
+        *,
+        *::before,
+        *::after {
+          transition-duration: 0.01s !important;
+          animation-duration: 0.01s !important;
+        }
+      }
+      ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--muted);
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width: 0%"></div></div>
+    <div class="toast" id="toast">
+      <span class="material-icons-round" style="font-size: 16px">check_circle</span>
+      <span id="toastText"></span>
+    </div>
+
+    <!-- Zoom Bar -->
+    <div class="zoom-bar dim" id="zoomBar">
+      <button class="z-btn" id="zoomOut" title="Perkecil (Ctrl+-)"><span class="material-icons-round" style="font-size: 18px">remove</span></button>
+      <span class="z-pct" id="zoomPct">100%</span>
+      <button class="z-btn" id="zoomIn" title="Perbesar (Ctrl++)"><span class="material-icons-round" style="font-size: 18px">add</span></button>
+      <div class="z-sep"></div>
+      <button class="z-btn" id="zoomReset" title="Reset (Ctrl+0)"><span class="material-icons-round" style="font-size: 16px">fit_screen</span></button>
+    </div>
+
+    <!-- Reset -->
+    <button class="reset-link" id="resetBtn"><span class="material-icons-round" style="font-size: 14px; vertical-align: middle; margin-right: 2px">logout</span> Reset</button>
+
+    <!-- ========== WELCOME ========== -->
+    <div id="welcomeScreen" class="screen visible" style="position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 50">
+      <div class="welcome-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+      </div>
+      <div class="glass" style="padding: 36px 28px 32px; width: 90%; max-width: 420px; position: relative; z-index: 1">
+        <div style="text-align: center; margin-bottom: 6px">
+          <div
+            style="
+              width: 54px;
+              height: 54px;
+              border-radius: 15px;
+              background: linear-gradient(135deg, #10b981, #059669);
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              margin-bottom: 14px;
+              box-shadow: 0 4px 22px rgba(16, 185, 129, 0.3);
+            "
+          >
+            <span class="material-icons-round" style="color: #022c22; font-size: 27px">quiz</span>
+          </div>
+        </div>
+        <h1 style="font-weight: 700; font-size: 24px; text-align: center; margin-bottom: 3px; line-height: 1.3">Simulasi JFT Basic</h1>
+        <p style="text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 26px; font-weight: 500; letter-spacing: 0.5px">by Mr.DJ</p>
+        <div class="resume-banner" id="resumeBanner">
+          <span class="material-icons-round">history</span>
+          <span id="resumeText" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Sesi ditemukan</span>
+          <button class="resume-btn" id="resumeBtn">Lanjutkan</button>
+        </div>
+        <label style="display: block; font-size: 12px; font-weight: 600; color: var(--fg-dim); margin-bottom: 7px; padding-left: 2px; text-transform: uppercase; letter-spacing: 0.8px">Nama Peserta</label>
+        <input type="text" id="nameInput" class="name-input" placeholder="Masukkan nama lengkap..." autocomplete="off" maxlength="50" />
+        <div style="margin-top: 22px; text-align: center">
+          <button class="btn-start" id="startBtn" disabled>Mulai Tes</button>
+        </div>
+        <p style="text-align: center; color: var(--muted); font-size: 11px; margin-top: 18px; line-height: 1.7">Pastikan koneksi internet stabil.<br />Jawaban dikirim sekaligus setelah submit.</p>
+      </div>
+    </div>
+
+    <!-- ========== TEST ========== -->
+    <div id="testScreen" class="screen hidden" style="position: fixed; inset: 0; z-index: 10; background: var(--bg)">
+      <div class="pdf-wrap" id="pdfWrap">
+        <iframe id="pdfFrame" src="about:blank" allow="autoplay" loading="lazy"></iframe>
+      </div>
+      <nav class="floating-panel" id="panel" aria-label="Kontrol soal">
+        <div class="nav-row" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px">
+          <button class="nav-btn" id="prevBtn" aria-label="Soal sebelumnya"><span class="material-icons-round" style="font-size: 22px">chevron_left</span></button>
+          <div class="q-num"><b id="curNum">1</b> / <span id="totNum">30</span><span class="q-dot" id="qDot"></span></div>
+          <button class="nav-btn" id="nextBtn" aria-label="Soal berikutnya"><span class="material-icons-round" style="font-size: 22px">chevron_right</span></button>
+          <button class="submit-btn" id="submitBtn" aria-label="Kirim jawaban" title="Kirim semua jawaban"><span class="material-icons-round" style="font-size: 22px">send</span></button>
+        </div>
+        <div class="answer-row" style="display: flex; gap: 7px" id="answerRow">
+          <button class="answer-btn" data-a="A">A</button>
+          <button class="answer-btn" data-a="B">B</button>
+          <button class="answer-btn" data-a="C">C</button>
+          <button class="answer-btn" data-a="D">D</button>
+          <button class="answer-btn" data-a="E">E</button>
+        </div>
+        <div class="done-row" id="doneRow">
+          <span class="material-icons-round">check_circle</span>
+          <span id="doneText">Jawaban terkirim</span>
+        </div>
+      </nav>
+    </div>
+
+    <script>
+      /*
+    ============================================================
+    SETUP GOOGLE SHEETS — FORMAT BARIS
+    ============================================================
+    1. Buat Google Sheets baru
+    2. Klik Extensions → Apps Script
+    3. Hapus semua kode, paste ini:
+
+    function doPost(e) {
+      var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+      var data = JSON.parse(e.parameter.payload);
+
+      if (sheet.getLastRow() === 0) {
+        var h = ['Nama', 'Waktu'];
+        for (var i = 1; i <= data.total; i++) h.push('Soal ' + i);
+        sheet.appendRow(h);
+      }
+
+      var row = [data.nama, data.waktu];
+      for (var i = 1; i <= data.total; i++) {
+        row.push(data.jawaban[String(i)] || '-');
+      }
+      sheet.appendRow(row);
+
+      return ContentService.createTextOutput(
+        JSON.stringify({status:'ok'})
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    4. Deploy → New deployment → ⚙️ pilih "Web app"
+    5. Execute as: Me | Who has access: Anyone
+    6. Deploy → izinkan akses
+    7. SALIN URL — WAJIB berakhiran /exec
+    8. Paste di GOOGLE_SHEET_URL di bawah
+    ============================================================
+    */
+
+      const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzf6HUzlTL0YuAqbuV5q4eyQtooDVeNQm-iDpyDk9DVca8pTc4XSN0TA6kUQEwDuCy2_g/exec';
+      const TOTAL_SOAL = 84;
+      const PDF_URL = 'https://drive.google.com/file/d/16kFne4PGOErS-5w3lmvDe09vksGOECfB/preview';
+      const STORAGE_KEY = 'jft_basic_v5';
+
+      // Zoom config
+      const ZOOM_MIN = 0.5;
+      const ZOOM_MAX = 4.0;
+      const ZOOM_STEP = 0.25;
+
+      let userName = '',
+        currentSoal = 1,
+        jawaban = {},
+        isSubmitted = false;
+      let zoomLevel = 1;
+
+      const $welcome = document.getElementById('welcomeScreen');
+      const $test = document.getElementById('testScreen');
+      const $nameInput = document.getElementById('nameInput');
+      const $startBtn = document.getElementById('startBtn');
+      const $prevBtn = document.getElementById('prevBtn');
+      const $nextBtn = document.getElementById('nextBtn');
+      const $submitBtn = document.getElementById('submitBtn');
+      const $curNum = document.getElementById('curNum');
+      const $totNum = document.getElementById('totNum');
+      const $answerRow = document.getElementById('answerRow');
+      const $progFill = document.getElementById('progFill');
+      const $toast = document.getElementById('toast');
+      const $toastText = document.getElementById('toastText');
+      const $pdfFrame = document.getElementById('pdfFrame');
+      const $pdfWrap = document.getElementById('pdfWrap');
+      const $resumeBanner = document.getElementById('resumeBanner');
+      const $resumeText = document.getElementById('resumeText');
+      const $resumeBtn = document.getElementById('resumeBtn');
+      const $resetBtn = document.getElementById('resetBtn');
+      const $qDot = document.getElementById('qDot');
+      const $panel = document.getElementById('panel');
+      const $doneText = document.getElementById('doneText');
+      const $zoomBar = document.getElementById('zoomBar');
+      const $zoomPct = document.getElementById('zoomPct');
+
+      $totNum.textContent = TOTAL_SOAL;
+
+      // ====== Cegah Refresh ======
+      window.addEventListener('beforeunload', function (e) {
+        if (!isSubmitted && Object.keys(jawaban).length > 0) {
+          e.preventDefault();
+          e.returnValue = '';
+          return '';
+        }
+      });
+
+      // ====== LocalStorage ======
+      function simpanSesi() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ nama: userName, currentSoal, jawaban, ts: Date.now() }));
+        } catch (_) {}
+      }
+      function muatSesi() {
+        try {
+          var r = localStorage.getItem(STORAGE_KEY);
+          return r ? JSON.parse(r) : null;
+        } catch (_) {
+          return null;
+        }
+      }
+      function hapusSesi() {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (_) {}
+      }
+
+      // ====== Toast ======
+      var _tt = null;
+      function showToast(msg, icon) {
+        $toastText.textContent = msg;
+        $toast.querySelector('.material-icons-round').textContent = icon || 'check_circle';
+        $toast.classList.add('show');
+        clearTimeout(_tt);
+        _tt = setTimeout(function () {
+          $toast.classList.remove('show');
+        }, 2500);
+      }
+
+      // ====== Dialog ======
+      function showDialog(html) {
+        return new Promise(function (resolve) {
+          var ov = document.createElement('div');
+          ov.className = 'dialog-overlay';
+          ov.innerHTML = '<div class="dialog-box">' + html + '</div>';
+          document.body.appendChild(ov);
+          var btns = ov.querySelectorAll('.btn-dlg');
+          btns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var val = this.getAttribute('data-result');
+              ov.remove();
+              resolve(val === 'true' || val === true);
+            });
+          });
+          ov.addEventListener('click', function (e) {
+            if (e.target === ov) {
+              ov.remove();
+              resolve(false);
+            }
+          });
+        });
+      }
+
+      // ===========================
+      // ====== ZOOM SYSTEM ======
+      // ===========================
+
+      function applyZoom() {
+        var w = $pdfWrap.clientWidth;
+        var h = $pdfWrap.clientHeight;
+
+        // Terapkan CSS scale pada iframe
+        $pdfFrame.style.transform = 'scale(' + zoomLevel + ')';
+        $pdfFrame.style.transformOrigin = '0 0';
+
+        // Ukuran iframe tetap 100% wrapper
+        $pdfFrame.style.width = w + 'px';
+        $pdfFrame.style.height = h + 'px';
+
+        // Margin trick: buat area scroll sesuai visual size setelah scale
+        // Visual width = w * zoom, layout width = w
+        // Margin-right = visual - layout = w*zoom - w = w*(zoom-1)
+        var extraW = Math.round(w * (zoomLevel - 1));
+        var extraH = Math.round(h * (zoomLevel - 1));
+        $pdfFrame.style.marginRight = Math.max(0, extraW) + 'px';
+        $pdfFrame.style.marginBottom = Math.max(0, extraH) + 'px';
+
+        // Update tampilan persentase
+        var pct = Math.round(zoomLevel * 100);
+        $zoomPct.textContent = pct + '%';
+
+        // Highlight zoom bar saat tidak 100%
+        if (Math.abs(zoomLevel - 1) < 0.01) $zoomBar.classList.add('dim');
+        else $zoomBar.classList.remove('dim');
+      }
+
+      function zoomIn() {
+        zoomLevel = Math.min(ZOOM_MAX, +(zoomLevel + ZOOM_STEP).toFixed(2));
+        applyZoom();
+      }
+
+      function zoomOut() {
+        zoomLevel = Math.max(ZOOM_MIN, +(zoomLevel - ZOOM_STEP).toFixed(2));
+        applyZoom();
+      }
+
+      function zoomReset() {
+        zoomLevel = 1;
+        $pdfWrap.scrollTop = 0;
+        $pdfWrap.scrollLeft = 0;
+        applyZoom();
+      }
+
+      // Tombol zoom
+      document.getElementById('zoomIn').addEventListener('click', zoomIn);
+      document.getElementById('zoomOut').addEventListener('click', zoomOut);
+      document.getElementById('zoomReset').addEventListener('click', zoomReset);
+
+      // Ctrl + Scroll (desktop)
+      $pdfWrap.addEventListener(
+        'wheel',
+        function (e) {
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            if (e.deltaY < 0) zoomIn();
+            else zoomOut();
+          }
+        },
+        { passive: false },
+      );
+
+      // Pinch-to-zoom (mobile) — dua jari di area PDF
+      var _pinchDist0 = 0,
+        _pinchZoom0 = 1,
+        _isPinching = false;
+
+      function touchDist(t) {
+        var dx = t[0].clientX - t[1].clientX;
+        var dy = t[0].clientY - t[1].clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+      }
+
+      $pdfWrap.addEventListener(
+        'touchstart',
+        function (e) {
+          if (e.touches.length === 2) {
+            _pinchDist0 = touchDist(e.touches);
+            _pinchZoom0 = zoomLevel;
+            _isPinching = true;
+          }
+        },
+        { passive: true },
+      );
+
+      $pdfWrap.addEventListener(
+        'touchmove',
+        function (e) {
+          if (_isPinching && e.touches.length === 2) {
+            e.preventDefault(); // cegah browser zoom bawaan
+            var dist = touchDist(e.touches);
+            var scale = dist / Math.max(1, _pinchDist0);
+            zoomLevel = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, +(_pinchZoom0 * scale).toFixed(2)));
+            applyZoom();
+          }
+        },
+        { passive: false },
+      );
+
+      $pdfWrap.addEventListener(
+        'touchend',
+        function (e) {
+          if (e.touches.length < 2) _isPinching = false;
+        },
+        { passive: true },
+      );
+
+      // Re-apply zoom saat ukuran berubah (rotasi layar, dll)
+      window.addEventListener('resize', function () {
+        if (!$test.classList.contains('hidden')) applyZoom();
+      });
+
+      // ===========================
+      // ====== END ZOOM ==========
+      // ===========================
+
+      // ====== Update UI ======
+      function updateUI() {
+        $curNum.textContent = currentSoal;
+        $prevBtn.disabled = currentSoal <= 1 || isSubmitted;
+        $nextBtn.disabled = currentSoal >= TOTAL_SOAL || isSubmitted;
+        $submitBtn.disabled = isSubmitted;
+
+        var sel = jawaban[currentSoal] || null;
+        var abtns = $answerRow.querySelectorAll('.answer-btn');
+        for (var i = 0; i < abtns.length; i++) {
+          if (abtns[i].dataset.a === sel) abtns[i].classList.add('selected');
+          else abtns[i].classList.remove('selected');
+          abtns[i].disabled = isSubmitted;
+        }
+
+        if (sel) $qDot.classList.add('on');
+        else $qDot.classList.remove('on');
+
+        var total = Object.keys(jawaban).length;
+        $progFill.style.width = (total / TOTAL_SOAL) * 100 + '%';
+      }
+
+      // ====== Navigasi ======
+      function pindahSoal(arah) {
+        if (isSubmitted) return;
+        // Nonaktifkan swipe saat zoom > 1.1 (prioritas scroll PDF)
+        if (zoomLevel > 1.1 && arah !== 0) return;
+        var n = currentSoal + arah;
+        if (n < 1 || n > TOTAL_SOAL) return;
+        currentSoal = n;
+        simpanSesi();
+        updateUI();
+      }
+
+      // ====== Pilih Jawaban ======
+      function pilihJawaban(jwb) {
+        if (isSubmitted) return;
+        var prev = jawaban[currentSoal];
+        jawaban[currentSoal] = jwb;
+        updateUI();
+        simpanSesi();
+        if (prev !== jwb) showToast('Soal ' + currentSoal + ' \u2192 ' + jwb);
+      }
+
+      // ====== Kirim ke Google Sheets ======
+      function kirimKeSheet(payload) {
+        var params = new URLSearchParams();
+        params.append('payload', JSON.stringify(payload));
+        return fetch(GOOGLE_SHEET_URL, { method: 'POST', mode: 'no-cors', body: params });
+      }
+
+      // ====== SUBMIT ======
+      async function handleSubmit() {
+        if (isSubmitted) return;
+
+        var total = Object.keys(jawaban).length;
+        var belum = TOTAL_SOAL - total;
+        var rawUrl = GOOGLE_SHEET_URL.trim();
+        var hasUrl = rawUrl.length > 0;
+        var urlOk = hasUrl && /\/exec$/.test(rawUrl);
+        var canSend = hasUrl && urlOk;
+
+        var gridHtml = '';
+        for (var i = 1; i <= TOTAL_SOAL; i++) {
+          var j = jawaban[i] || '-';
+          var clr = jawaban[i] ? 'color:var(--accent-light)' : 'color:var(--muted);opacity:.5';
+          gridHtml += '<span style="' + clr + '">' + i + '.' + j + '</span>';
+        }
+
+        var warnHtml = '';
+        if (belum > 0) warnHtml += '<div class="warn"><span class="material-icons-round" style="font-size:15px">warning_amber</span> ' + belum + ' soal belum dijawab</div>';
+        if (!hasUrl) warnHtml += '<div class="warn" style="margin-top:4px"><span class="material-icons-round" style="font-size:15px">cloud_off</span> Google Sheets belum dikonfigurasi</div>';
+        else if (!urlOk) warnHtml += '<div class="warn" style="margin-top:4px"><span class="material-icons-round" style="font-size:15px">error_outline</span> URL harus berakhiran /exec</div>';
+
+        var cLabel = canSend ? 'Kirim Sekarang' : 'Simpan Lokal';
+        var cClass = canSend ? 'green' : 'amber';
+
+        var ov = document.createElement('div');
+        ov.className = 'dialog-overlay';
+        ov.innerHTML =
+          '<div class="dialog-box">' +
+          '<span class="material-icons-round dlg-icon" style="color:var(--amber)">send</span>' +
+          '<h3>Kirim Jawaban</h3>' +
+          '<div style="margin:12px 0 4px;">' +
+          '<div class="summary-row"><span class="summary-label">Nama</span><span class="summary-val">' +
+          userName +
+          '</span></div>' +
+          '<div class="summary-row"><span class="summary-label">Dijawab</span><span class="summary-val">' +
+          total +
+          ' / ' +
+          TOTAL_SOAL +
+          '</span></div>' +
+          '</div>' +
+          '<div class="answer-grid">' +
+          gridHtml +
+          '</div>' +
+          warnHtml +
+          '<div class="actions">' +
+          '<button class="btn-dlg cancel" id="submitCancel">Batal</button>' +
+          '<button class="btn-dlg ' +
+          cClass +
+          '" id="submitConfirm">' +
+          cLabel +
+          '</button>' +
+          '</div>' +
+          '</div>';
+        document.body.appendChild(ov);
+
+        var userConfirmed = await new Promise(function (resolve) {
+          document.getElementById('submitCancel').addEventListener('click', function () {
+            ov.remove();
+            resolve(false);
+          });
+          document.getElementById('submitConfirm').addEventListener('click', function () {
+            this.innerHTML = '<span class="spinner"></span>';
+            this.disabled = true;
+            this.style.opacity = '0.7';
+            resolve(true);
+          });
+          ov.addEventListener('click', function (e) {
+            if (e.target === ov) {
+              ov.remove();
+              resolve(false);
+            }
+          });
+        });
+
+        if (!userConfirmed) return;
+
+        var sendOk = true;
+        if (canSend) {
+          try {
+            await Promise.all([
+              kirimKeSheet({ nama: userName, total: TOTAL_SOAL, jawaban: jawaban, waktu: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) }),
+              new Promise(function (r) {
+                setTimeout(r, 1500);
+              }),
+            ]);
+          } catch (e) {
+            console.warn('Gagal kirim:', e);
+            sendOk = false;
+          }
+        }
+
+        ov.remove();
+        isSubmitted = true;
+        hapusSesi();
+
+        var sIcon = canSend && sendOk ? 'cloud_done' : 'save';
+        var sTitle = canSend && sendOk ? 'Jawaban Terkirim' : 'Tersimpan Lokal';
+        var sDesc = canSend && sendOk ? 'Semua jawaban berhasil dikirim ke Google Sheets.' : canSend ? 'Gagal mengirim. Jawaban tersimpan di perangkat ini.' : 'Konfigurasi Google Sheets untuk pengiriman otomatis.';
+
+        await showDialog(
+          '<span class="material-icons-round dlg-icon" style="color:var(--accent)">' +
+            sIcon +
+            '</span>' +
+            '<h3>' +
+            sTitle +
+            '</h3><p>' +
+            sDesc +
+            '</p>' +
+            '<div style="margin:12px 0 0;">' +
+            '<div class="summary-row"><span class="summary-label">Nama</span><span class="summary-val">' +
+            userName +
+            '</span></div>' +
+            '<div class="summary-row"><span class="summary-label">Terjawab</span><span class="summary-val">' +
+            total +
+            ' / ' +
+            TOTAL_SOAL +
+            '</span></div>' +
+            '<div class="summary-row"><span class="summary-label">Waktu</span><span class="summary-val">' +
+            new Date().toLocaleTimeString('id-ID') +
+            '</span></div>' +
+            '</div>' +
+            '<div class="actions"><button class="btn-dlg green" data-result="true" style="flex:1">Selesai</button></div>',
+        );
+
+        $panel.classList.add('submitted');
+        $doneText.textContent = 'Terkirim \u2014 ' + total + '/' + TOTAL_SOAL;
+        $submitBtn.classList.add('done');
+        $submitBtn.querySelector('.material-icons-round').textContent = 'check';
+        updateUI();
+        showToast(sTitle, sIcon);
+      }
+
+      // ====== Ganti Layar ======
+      function showScreen(target) {
+        $welcome.classList.remove('visible');
+        $welcome.classList.add('hidden');
+        $test.classList.remove('visible');
+        $test.classList.add('hidden');
+        target.classList.remove('hidden');
+        target.classList.add('visible');
+      }
+
+      // ====== Mulai Tes ======
+      function mulaiTes() {
+        userName = $nameInput.value.trim();
+        if (!userName) return;
+        hapusSesi();
+        currentSoal = 1;
+        jawaban = {};
+        isSubmitted = false;
+        zoomLevel = 1;
+        $pdfFrame.src = PDF_URL;
+        $pdfFrame.style.transform = '';
+        $pdfFrame.style.marginRight = '';
+        $pdfFrame.style.marginBottom = '';
+        $resetBtn.style.display = 'block';
+        $zoomBar.style.display = 'flex';
+        $panel.classList.remove('submitted');
+        $submitBtn.classList.remove('done');
+        $submitBtn.querySelector('.material-icons-round').textContent = 'send';
+        showScreen($test);
+        // Tunggu iframe & wrapper siap, lalu apply zoom awal
+        setTimeout(applyZoom, 100);
+        simpanSesi();
+        updateUI();
+        showToast('Tes dimulai \u2014 ' + userName);
+      }
+
+      // ====== Lanjutkan Sesi ======
+      function lanjutkanSesi(s) {
+        userName = s.nama || '';
+        currentSoal = s.currentSoal || 1;
+        jawaban = s.jawaban || {};
+        isSubmitted = false;
+        zoomLevel = 1;
+        $nameInput.value = userName;
+        $pdfFrame.src = PDF_URL;
+        $pdfFrame.style.transform = '';
+        $pdfFrame.style.marginRight = '';
+        $pdfFrame.style.marginBottom = '';
+        $resetBtn.style.display = 'block';
+        $zoomBar.style.display = 'flex';
+        $panel.classList.remove('submitted');
+        $submitBtn.classList.remove('done');
+        $submitBtn.querySelector('.material-icons-round').textContent = 'send';
+        showScreen($test);
+        setTimeout(applyZoom, 100);
+        updateUI();
+        showToast('Lanjutkan \u2014 ' + userName, 'history');
+      }
+
+      // ====== Reset ======
+      async function handleReset() {
+        if (!isSubmitted && Object.keys(jawaban).length > 0) {
+          var ok = await showDialog(
+            '<span class="material-icons-round dlg-icon" style="color:var(--danger)">warning_amber</span>' +
+              '<h3>Hapus Sesi?</h3><p>Semua jawaban yang belum dikirim akan hilang.</p>' +
+              '<div class="actions"><button class="btn-dlg cancel" data-result="false">Batal</button><button class="btn-dlg red" data-result="true">Hapus</button></div>',
+          );
+          if (!ok) return;
+        }
+        hapusSesi();
+        isSubmitted = false;
+        zoomLevel = 1;
+        $pdfFrame.src = 'about:blank';
+        $pdfFrame.style.transform = '';
+        $pdfFrame.style.marginRight = '';
+        $pdfFrame.style.marginBottom = '';
+        $resetBtn.style.display = 'none';
+        $zoomBar.style.display = 'none';
+        $progFill.style.width = '0%';
+        showScreen($welcome);
+        setTimeout(function () {
+          $nameInput.focus();
+        }, 400);
+      }
+
+      // ====== Events ======
+      $nameInput.addEventListener('input', function () {
+        $startBtn.disabled = !this.value.trim();
+      });
+      $nameInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && this.value.trim()) mulaiTes();
+      });
+      $startBtn.addEventListener('click', mulaiTes);
+      $resumeBtn.addEventListener('click', function () {
+        var s = muatSesi();
+        if (s) lanjutkanSesi(s);
+      });
+      $prevBtn.addEventListener('click', function () {
+        pindahSoal(-1);
+      });
+      $nextBtn.addEventListener('click', function () {
+        pindahSoal(1);
+      });
+      $submitBtn.addEventListener('click', handleSubmit);
+      $resetBtn.addEventListener('click', handleReset);
+
+      var abtns = $answerRow.querySelectorAll('.answer-btn');
+      for (var i = 0; i < abtns.length; i++) {
+        (function (btn) {
+          btn.addEventListener('click', function () {
+            pilihJawaban(btn.dataset.a);
+          });
+        })(abtns[i]);
+      }
+
+      // Keyboard
+      document.addEventListener('keydown', function (e) {
+        if ($test.classList.contains('hidden')) return;
+        if (document.querySelector('.dialog-overlay')) return;
+        // Ctrl+= / Ctrl+- / Ctrl+0 untuk zoom
+        if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+')) {
+          e.preventDefault();
+          zoomIn();
+          return;
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === '-') {
+          e.preventDefault();
+          zoomOut();
+          return;
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === '0') {
+          e.preventDefault();
+          zoomReset();
+          return;
+        }
+        switch (e.key) {
+          case 'ArrowLeft':
+            e.preventDefault();
+            pindahSoal(-1);
+            break;
+          case 'ArrowRight':
+            e.preventDefault();
+            pindahSoal(1);
+            break;
+          case 'a':
+          case 'A':
+            pilihJawaban('A');
+            break;
+          case 'b':
+          case 'B':
+            pilihJawaban('B');
+            break;
+          case 'c':
+          case 'C':
+            pilihJawaban('C');
+            break;
+          case 'd':
+          case 'D':
+            pilihJawaban('D');
+            break;
+          case 'e':
+          case 'E':
+            pilihJawaban('E');
+            break;
+          case 'Enter':
+            if (!isSubmitted) handleSubmit();
+            break;
+        }
+      });
+
+      // Swipe navigasi (nonaktif saat zoom > 1.1)
+      var _tx = 0,
+        _ty = 0;
+      document.addEventListener(
+        'touchstart',
+        function (e) {
+          if ($test.classList.contains('hidden') || e.target.closest('.floating-panel') || document.querySelector('.dialog-overlay')) return;
+          if (e.touches.length === 1) {
+            _tx = e.touches[0].clientX;
+            _ty = e.touches[0].clientY;
+          }
+        },
+        { passive: true },
+      );
+      document.addEventListener(
+        'touchend',
+        function (e) {
+          if ($test.classList.contains('hidden') || e.target.closest('.floating-panel') || document.querySelector('.dialog-overlay')) return;
+          if (e.changedTouches.length !== 1) return;
+          // Jangan swipe jika sedang pinch-zoom atau zoom aktif
+          if (zoomLevel > 1.1) return;
+          var dx = e.changedTouches[0].clientX - _tx;
+          var dy = e.changedTouches[0].clientY - _ty;
+          if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.6) pindahSoal(dx < 0 ? 1 : -1);
+        },
+        { passive: true },
+      );
+
+      // ====== Init ======
+      (function () {
+        var s = muatSesi();
+        if (s && s.nama) {
+          var n = Object.keys(s.jawaban || {}).length;
+          if (n > 0) {
+            $resumeBanner.style.display = 'flex';
+            $resumeText.textContent = s.nama + ' \u2014 ' + n + '/' + TOTAL_SOAL + ' terjawab';
+          }
+        }
+        setTimeout(function () {
+          $nameInput.focus();
+        }, 500);
+      })();
+    </script>
+  </body>
+</html>
