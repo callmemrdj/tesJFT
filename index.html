@@ -9,16 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
     <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              display: ['"Space Grotesk"', 'sans-serif'],
-              jp: ['"Noto Sans JP"', 'sans-serif'],
-            },
-          },
-        },
-      };
+      tailwind.config = { theme: { extend: { fontFamily: { display: ['"Space Grotesk"', 'sans-serif'], jp: ['"Noto Sans JP"', 'sans-serif'] } } } };
     </script>
     <style>
       :root {
@@ -179,9 +170,9 @@
         transition: opacity 0.4s;
       }
       .nav-btn {
-        width: 46px;
-        height: 46px;
-        border-radius: 12px;
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
         border: 1.5px solid var(--border);
         background: rgba(16, 185, 129, 0.05);
         color: var(--accent);
@@ -203,10 +194,53 @@
         opacity: 0.2;
         cursor: not-allowed;
       }
+      .audio-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
+        border: 1.5px solid rgba(52, 211, 153, 0.2);
+        background: rgba(52, 211, 153, 0.06);
+        color: var(--accent-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+        visibility: hidden;
+      }
+      .audio-btn.vis {
+        visibility: visible;
+      }
+      .audio-btn:hover:not(:disabled) {
+        background: rgba(52, 211, 153, 0.18);
+        border-color: var(--accent-light);
+      }
+      .audio-btn:active:not(:disabled) {
+        transform: scale(0.88);
+      }
+      .audio-btn:disabled {
+        opacity: 0.2;
+        cursor: not-allowed;
+      }
+      .audio-btn.playing {
+        background: rgba(16, 185, 129, 0.2);
+        border-color: var(--accent);
+        animation: aPulse 1.4s ease-in-out infinite;
+      }
+      @keyframes aPulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 0 7px rgba(16, 185, 129, 0);
+        }
+      }
       .submit-btn {
-        width: 46px;
-        height: 46px;
-        border-radius: 12px;
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
         border: none;
         background: linear-gradient(135deg, var(--amber), #d97706);
         color: var(--amber-dark);
@@ -280,17 +314,17 @@
         transform: none;
       }
       .q-num {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 500;
         color: var(--fg-dim);
-        min-width: 90px;
+        min-width: 82px;
         text-align: center;
-        line-height: 46px;
+        line-height: 44px;
         flex: 1;
       }
       .q-num b {
         color: var(--accent-light);
-        font-size: 20px;
+        font-size: 19px;
         font-weight: 700;
       }
       .q-dot {
@@ -323,9 +357,56 @@
         box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
         border-radius: 0 2px 2px 0;
       }
+      /* Timer strip */
+      .timer-strip {
+        position: fixed;
+        top: 3px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 200;
+        display: none;
+        align-items: center;
+        gap: 5px;
+        background: rgba(6, 13, 9, 0.93);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        padding: 4px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--fg-dim);
+        font-variant-numeric: tabular-nums;
+        backdrop-filter: blur(10px);
+        letter-spacing: 0.5px;
+        transition:
+          color 0.3s,
+          border-color 0.3s;
+      }
+      .timer-strip .material-icons-round {
+        font-size: 15px;
+      }
+      .timer-strip.warn {
+        color: var(--amber);
+        border-color: rgba(245, 158, 11, 0.25);
+      }
+      .timer-strip.crit {
+        color: var(--danger);
+        border-color: rgba(239, 68, 68, 0.3);
+        animation: tPulse 1s infinite;
+      }
+      @keyframes tPulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.55;
+        }
+      }
+      /* Toast */
       .toast {
         position: fixed;
-        top: 14px;
+        top: 50px;
         left: 50%;
         transform: translateX(-50%) translateY(-80px);
         background: var(--card);
@@ -347,6 +428,85 @@
       .toast.show {
         transform: translateX(-50%) translateY(0);
       }
+      /* Zoom */
+      .zoom-bar {
+        position: fixed;
+        top: 10px;
+        left: 12px;
+        z-index: 150;
+        display: none;
+        align-items: center;
+        gap: 3px;
+        background: rgba(6, 13, 9, 0.88);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 4px 6px;
+        backdrop-filter: blur(10px);
+        transition: opacity 0.3s;
+      }
+      .zoom-bar.dim {
+        opacity: 0.45;
+      }
+      .zoom-bar.dim:hover {
+        opacity: 1;
+      }
+      .z-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 7px;
+        border: none;
+        background: transparent;
+        color: var(--fg-dim);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .z-btn:hover {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--fg);
+      }
+      .z-btn:active {
+        transform: scale(0.88);
+      }
+      .z-btn:disabled {
+        opacity: 0.2;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .z-pct {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--fg-dim);
+        min-width: 36px;
+        text-align: center;
+        pointer-events: none;
+      }
+      .z-sep {
+        width: 1px;
+        height: 16px;
+        background: var(--border);
+        flex-shrink: 0;
+      }
+      /* PDF */
+      .pdf-wrap {
+        width: 100%;
+        height: calc(100dvh - var(--panel-h));
+        height: calc(100vh - var(--panel-h));
+        background: #111;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        position: relative;
+      }
+      .pdf-wrap iframe {
+        border: none;
+        display: block;
+        transform-origin: 0 0;
+        will-change: transform;
+        transition: margin 0.15s ease;
+      }
+      /* Resume */
       .resume-banner {
         background: rgba(16, 185, 129, 0.07);
         border: 1px solid rgba(16, 185, 129, 0.18);
@@ -381,82 +541,7 @@
       .resume-btn:hover {
         background: var(--accent-light);
       }
-
-      /* ===== PDF Wrap — scrollable untuk zoom ===== */
-      .pdf-wrap {
-        width: 100%;
-        height: calc(100dvh - var(--panel-h));
-        height: calc(100vh - var(--panel-h));
-        background: #111;
-        overflow: auto;
-        -webkit-overflow-scrolling: touch;
-        position: relative;
-      }
-      .pdf-wrap iframe {
-        border: none;
-        display: block;
-        transform-origin: 0 0;
-        will-change: transform;
-        transition: margin 0.15s ease;
-      }
-
-      /* ===== Zoom Bar ===== */
-      .zoom-bar {
-        position: fixed;
-        top: 10px;
-        left: 12px;
-        z-index: 150;
-        display: none;
-        align-items: center;
-        gap: 3px;
-        background: rgba(6, 13, 9, 0.88);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 4px 6px;
-        backdrop-filter: blur(10px);
-        transition: opacity 0.3s;
-      }
-      .zoom-bar.dim {
-        opacity: 0.5;
-      }
-      .zoom-bar.dim:hover {
-        opacity: 1;
-      }
-      .z-btn {
-        width: 30px;
-        height: 30px;
-        border-radius: 7px;
-        border: none;
-        background: transparent;
-        color: var(--fg-dim);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.15s;
-      }
-      .z-btn:hover {
-        background: rgba(16, 185, 129, 0.15);
-        color: var(--fg);
-      }
-      .z-btn:active {
-        transform: scale(0.88);
-      }
-      .z-pct {
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--fg-dim);
-        min-width: 36px;
-        text-align: center;
-        pointer-events: none;
-      }
-      .z-sep {
-        width: 1px;
-        height: 16px;
-        background: var(--border);
-        flex-shrink: 0;
-      }
-
+      /* Screens */
       .screen {
         transition:
           opacity 0.4s ease,
@@ -494,7 +579,6 @@
         color: var(--danger);
         border-color: rgba(239, 68, 68, 0.3);
       }
-
       /* Dialog */
       .dialog-overlay {
         position: fixed;
@@ -563,6 +647,7 @@
         align-items: center;
         justify-content: center;
         gap: 4px;
+        flex-wrap: wrap;
       }
       .dialog-box .actions {
         display: flex;
@@ -684,6 +769,15 @@
           transform: rotate(360deg);
         }
       }
+      /* Freeze overlay */
+      .freeze-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 90;
+        background: rgba(0, 0, 0, 0.3);
+        pointer-events: auto;
+        animation: fadeIn 0.5s ease;
+      }
       @media (max-height: 580px) {
         :root {
           --panel-h: 96px;
@@ -693,12 +787,14 @@
           padding-bottom: max(6px, env(safe-area-inset-bottom));
         }
         .nav-btn,
+        .audio-btn,
         .submit-btn {
           width: 38px;
           height: 38px;
-          border-radius: 10px;
+          border-radius: 9px;
         }
         .nav-btn .material-icons-round,
+        .audio-btn .material-icons-round,
         .submit-btn .material-icons-round {
           font-size: 20px !important;
         }
@@ -708,12 +804,12 @@
           border-radius: 8px;
         }
         .q-num {
-          font-size: 12px;
-          min-width: 72px;
+          font-size: 11px;
+          min-width: 68px;
           line-height: 38px;
         }
         .q-num b {
-          font-size: 17px;
+          font-size: 16px;
         }
         .zoom-bar {
           top: 6px;
@@ -728,6 +824,10 @@
           font-size: 10px;
           min-width: 30px;
         }
+        .timer-strip {
+          font-size: 11px;
+          padding: 3px 10px;
+        }
       }
       @media (min-width: 768px) {
         .answer-btn {
@@ -735,12 +835,13 @@
           font-size: 17px;
         }
         .nav-btn,
+        .audio-btn,
         .submit-btn {
           width: 50px;
           height: 50px;
         }
         .q-num {
-          font-size: 16px;
+          font-size: 15px;
           min-width: 110px;
           line-height: 50px;
         }
@@ -784,18 +885,26 @@
   </head>
   <body>
     <div class="prog-track"><div class="prog-fill" id="progFill" style="width: 0%"></div></div>
+
+    <!-- Timer -->
+    <div class="timer-strip" id="timerStrip">
+      <span class="material-icons-round">timer</span>
+      <span id="timerDisplay">30:00</span>
+    </div>
+
+    <!-- Toast -->
     <div class="toast" id="toast">
       <span class="material-icons-round" style="font-size: 16px">check_circle</span>
       <span id="toastText"></span>
     </div>
 
-    <!-- Zoom Bar -->
+    <!-- Zoom -->
     <div class="zoom-bar dim" id="zoomBar">
-      <button class="z-btn" id="zoomOut" title="Perkecil (Ctrl+-)"><span class="material-icons-round" style="font-size: 18px">remove</span></button>
+      <button class="z-btn" id="zoomOut" title="Perkecil"><span class="material-icons-round" style="font-size: 18px">remove</span></button>
       <span class="z-pct" id="zoomPct">100%</span>
-      <button class="z-btn" id="zoomIn" title="Perbesar (Ctrl++)"><span class="material-icons-round" style="font-size: 18px">add</span></button>
+      <button class="z-btn" id="zoomIn" title="Perbesar"><span class="material-icons-round" style="font-size: 18px">add</span></button>
       <div class="z-sep"></div>
-      <button class="z-btn" id="zoomReset" title="Reset (Ctrl+0)"><span class="material-icons-round" style="font-size: 16px">fit_screen</span></button>
+      <button class="z-btn" id="zoomReset" title="Reset"><span class="material-icons-round" style="font-size: 16px">fit_screen</span></button>
     </div>
 
     <!-- Reset -->
@@ -848,9 +957,10 @@
         <iframe id="pdfFrame" src="about:blank" allow="autoplay" loading="lazy"></iframe>
       </div>
       <nav class="floating-panel" id="panel" aria-label="Kontrol soal">
-        <div class="nav-row" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px">
+        <div class="nav-row" style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px">
           <button class="nav-btn" id="prevBtn" aria-label="Soal sebelumnya"><span class="material-icons-round" style="font-size: 22px">chevron_left</span></button>
           <div class="q-num"><b id="curNum">1</b> / <span id="totNum">30</span><span class="q-dot" id="qDot"></span></div>
+          <button class="audio-btn" id="audioBtn" title="Putar audio soal"><span class="material-icons-round" style="font-size: 21px">headphones</span></button>
           <button class="nav-btn" id="nextBtn" aria-label="Soal berikutnya"><span class="material-icons-round" style="font-size: 22px">chevron_right</span></button>
           <button class="submit-btn" id="submitBtn" aria-label="Kirim jawaban" title="Kirim semua jawaban"><span class="material-icons-round" style="font-size: 22px">send</span></button>
         </div>
@@ -875,93 +985,121 @@
     ============================================================
     1. Buat Google Sheets baru
     2. Klik Extensions → Apps Script
-    3. Hapus semua kode, paste ini:
+    3. Hapus semua kode, paste:
 
     function doPost(e) {
       var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
       var data = JSON.parse(e.parameter.payload);
-
       if (sheet.getLastRow() === 0) {
         var h = ['Nama', 'Waktu'];
         for (var i = 1; i <= data.total; i++) h.push('Soal ' + i);
         sheet.appendRow(h);
       }
-
       var row = [data.nama, data.waktu];
-      for (var i = 1; i <= data.total; i++) {
-        row.push(data.jawaban[String(i)] || '-');
-      }
+      for (var i = 1; i <= data.total; i++) row.push(data.jawaban[String(i)] || '-');
       sheet.appendRow(row);
-
-      return ContentService.createTextOutput(
-        JSON.stringify({status:'ok'})
-      ).setMimeType(ContentService.MimeType.JSON);
+      return ContentService.createTextOutput(JSON.stringify({status:'ok'})).setMimeType(ContentService.MimeType.JSON);
     }
 
-    4. Deploy → New deployment → ⚙️ pilih "Web app"
+    4. Deploy → New deployment → ⚙️ "Web app"
     5. Execute as: Me | Who has access: Anyone
-    6. Deploy → izinkan akses
-    7. SALIN URL — WAJIB berakhiran /exec
-    8. Paste di GOOGLE_SHEET_URL di bawah
+    6. Deploy → izinkan → salin URL (WAJIB /exec)
+    7. Paste di GOOGLE_SHEET_URL
     ============================================================
     */
 
+      // ===================== KONFIGURASI =====================
       const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzf6HUzlTL0YuAqbuV5q4eyQtooDVeNQm-iDpyDk9DVca8pTc4XSN0TA6kUQEwDuCy2_g/exec';
       const TOTAL_SOAL = 84;
-      const PDF_URL = 'https://drive.google.com/file/d/16kFne4PGOErS-5w3lmvDe09vksGOECfB/preview';
-      const STORAGE_KEY = 'jft_basic_v5';
+      const PDF_URL = 'https://drive.google.com/file/d/1an2Ce2b5TdtpWv5Y6ArWPzJ701CYPI79/preview';
+      const STORAGE_KEY = 'jft_basic_v6';
+      const TIMER_MINUTES = 60; // durasi tes
 
-      // Zoom config
-      const ZOOM_MIN = 0.5;
-      const ZOOM_MAX = 4.0;
-      const ZOOM_STEP = 0.25;
+      // Peta soal → URL audio. Tambahkan sesuai kebutuhan.
+      const AUDIO_MAP = {
+        15: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/03/X_[03-02]_kiku2.mp3',
+        16: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/03/X_[03-04]_kiku4.mp3',
+        17: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/03/X_[03-03]_kiku3.mp3',
+        18: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/03/X_[03-01]_kiku1.mp3',
+        19: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/03/X_[03-07]_kaiwa.mp3',
+        20: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/03/X_[03-07]_kaiwa.mp3',
+        21: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/03/X_[03-07]_kaiwa.mp3',
+        47: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/04/X_[04-03]_kiku1.mp3',
+        48: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/04/X_[04-04]_kiku2.mp3',
+        49: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/04/X_[04-21]_kiku4.mp3',
+        50: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/04/X_[04-20]_kiku3.mp3',
+        51: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/04/X_[04-18]_kiku1.mp3',
+        80: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/05/X_[05-01]_kiku1.mp3',
+        81: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/05/X_[05-02]_kiku2.mp3',
+        82: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/05/X_[05-11]_kiku1.mp3',
+        83: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/05/X_[05-13]_kiku3.mp3',
+        84: 'https://www.irodori.jpf.go.jp/assets/data/starter/audio/05/X_[05-14]_kiku4.mp3',
 
-      let userName = '',
+        // contoh: 20: 'https://example.com/audio/soal20.mp3',
+      };
+
+      // Zoom
+      const ZOOM_MIN = 0.5,
+        ZOOM_MAX = 4.0,
+        ZOOM_STEP = 0.25;
+
+      // ===================== STATE =====================
+      var userName = '',
         currentSoal = 1,
-        jawaban = {},
-        isSubmitted = false;
-      let zoomLevel = 1;
+        jawaban = {};
+      var isSubmitted = false,
+        isFrozen = false;
+      var zoomLevel = 1;
+      var remainingTime = TIMER_MINUTES * 60;
+      var timerInterval = null,
+        _saveTick = 0;
+      var currentAudio = null,
+        isAudioPlaying = false;
 
-      const $welcome = document.getElementById('welcomeScreen');
-      const $test = document.getElementById('testScreen');
-      const $nameInput = document.getElementById('nameInput');
-      const $startBtn = document.getElementById('startBtn');
-      const $prevBtn = document.getElementById('prevBtn');
-      const $nextBtn = document.getElementById('nextBtn');
-      const $submitBtn = document.getElementById('submitBtn');
-      const $curNum = document.getElementById('curNum');
-      const $totNum = document.getElementById('totNum');
-      const $answerRow = document.getElementById('answerRow');
-      const $progFill = document.getElementById('progFill');
-      const $toast = document.getElementById('toast');
-      const $toastText = document.getElementById('toastText');
-      const $pdfFrame = document.getElementById('pdfFrame');
-      const $pdfWrap = document.getElementById('pdfWrap');
-      const $resumeBanner = document.getElementById('resumeBanner');
-      const $resumeText = document.getElementById('resumeText');
-      const $resumeBtn = document.getElementById('resumeBtn');
-      const $resetBtn = document.getElementById('resetBtn');
-      const $qDot = document.getElementById('qDot');
-      const $panel = document.getElementById('panel');
-      const $doneText = document.getElementById('doneText');
-      const $zoomBar = document.getElementById('zoomBar');
-      const $zoomPct = document.getElementById('zoomPct');
+      // ===================== DOM =====================
+      var $welcome = document.getElementById('welcomeScreen');
+      var $test = document.getElementById('testScreen');
+      var $nameInput = document.getElementById('nameInput');
+      var $startBtn = document.getElementById('startBtn');
+      var $prevBtn = document.getElementById('prevBtn');
+      var $nextBtn = document.getElementById('nextBtn');
+      var $submitBtn = document.getElementById('submitBtn');
+      var $audioBtn = document.getElementById('audioBtn');
+      var $curNum = document.getElementById('curNum');
+      var $totNum = document.getElementById('totNum');
+      var $answerRow = document.getElementById('answerRow');
+      var $progFill = document.getElementById('progFill');
+      var $toast = document.getElementById('toast');
+      var $toastText = document.getElementById('toastText');
+      var $pdfFrame = document.getElementById('pdfFrame');
+      var $pdfWrap = document.getElementById('pdfWrap');
+      var $resumeBanner = document.getElementById('resumeBanner');
+      var $resumeText = document.getElementById('resumeText');
+      var $resumeBtn = document.getElementById('resumeBtn');
+      var $resetBtn = document.getElementById('resetBtn');
+      var $qDot = document.getElementById('qDot');
+      var $panel = document.getElementById('panel');
+      var $doneText = document.getElementById('doneText');
+      var $zoomBar = document.getElementById('zoomBar');
+      var $zoomPct = document.getElementById('zoomPct');
+      var $timerStrip = document.getElementById('timerStrip');
+      var $timerDisplay = document.getElementById('timerDisplay');
 
       $totNum.textContent = TOTAL_SOAL;
 
-      // ====== Cegah Refresh ======
+      // ===================== CEGAH REFRESH =====================
       window.addEventListener('beforeunload', function (e) {
-        if (!isSubmitted && Object.keys(jawaban).length > 0) {
+        if (!isSubmitted && !isFrozen && Object.keys(jawaban).length > 0) {
           e.preventDefault();
           e.returnValue = '';
           return '';
         }
       });
 
-      // ====== LocalStorage ======
+      // ===================== LOCAL STORAGE =====================
       function simpanSesi() {
         try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify({ nama: userName, currentSoal, jawaban, ts: Date.now() }));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ nama: userName, currentSoal: currentSoal, jawaban: jawaban, remainingTime: remainingTime, ts: Date.now() }));
         } catch (_) {}
       }
       function muatSesi() {
@@ -978,7 +1116,7 @@
         } catch (_) {}
       }
 
-      // ====== Toast ======
+      // ===================== TOAST =====================
       var _tt = null;
       function showToast(msg, icon) {
         $toastText.textContent = msg;
@@ -990,19 +1128,18 @@
         }, 2500);
       }
 
-      // ====== Dialog ======
+      // ===================== DIALOG =====================
       function showDialog(html) {
         return new Promise(function (resolve) {
           var ov = document.createElement('div');
           ov.className = 'dialog-overlay';
           ov.innerHTML = '<div class="dialog-box">' + html + '</div>';
           document.body.appendChild(ov);
-          var btns = ov.querySelectorAll('.btn-dlg');
-          btns.forEach(function (btn) {
+          ov.querySelectorAll('.btn-dlg').forEach(function (btn) {
             btn.addEventListener('click', function () {
-              var val = this.getAttribute('data-result');
+              var v = this.getAttribute('data-result');
               ov.remove();
-              resolve(val === 'true' || val === true);
+              resolve(v === 'true' || v === true);
             });
           });
           ov.addEventListener('click', function (e) {
@@ -1014,49 +1151,28 @@
         });
       }
 
-      // ===========================
-      // ====== ZOOM SYSTEM ======
-      // ===========================
-
+      // ===================== ZOOM =====================
       function applyZoom() {
-        var w = $pdfWrap.clientWidth;
-        var h = $pdfWrap.clientHeight;
-
-        // Terapkan CSS scale pada iframe
+        var w = $pdfWrap.clientWidth,
+          h = $pdfWrap.clientHeight;
         $pdfFrame.style.transform = 'scale(' + zoomLevel + ')';
         $pdfFrame.style.transformOrigin = '0 0';
-
-        // Ukuran iframe tetap 100% wrapper
         $pdfFrame.style.width = w + 'px';
         $pdfFrame.style.height = h + 'px';
-
-        // Margin trick: buat area scroll sesuai visual size setelah scale
-        // Visual width = w * zoom, layout width = w
-        // Margin-right = visual - layout = w*zoom - w = w*(zoom-1)
-        var extraW = Math.round(w * (zoomLevel - 1));
-        var extraH = Math.round(h * (zoomLevel - 1));
-        $pdfFrame.style.marginRight = Math.max(0, extraW) + 'px';
-        $pdfFrame.style.marginBottom = Math.max(0, extraH) + 'px';
-
-        // Update tampilan persentase
-        var pct = Math.round(zoomLevel * 100);
-        $zoomPct.textContent = pct + '%';
-
-        // Highlight zoom bar saat tidak 100%
+        $pdfFrame.style.marginRight = Math.max(0, Math.round(w * (zoomLevel - 1))) + 'px';
+        $pdfFrame.style.marginBottom = Math.max(0, Math.round(h * (zoomLevel - 1))) + 'px';
+        $zoomPct.textContent = Math.round(zoomLevel * 100) + '%';
         if (Math.abs(zoomLevel - 1) < 0.01) $zoomBar.classList.add('dim');
         else $zoomBar.classList.remove('dim');
       }
-
       function zoomIn() {
         zoomLevel = Math.min(ZOOM_MAX, +(zoomLevel + ZOOM_STEP).toFixed(2));
         applyZoom();
       }
-
       function zoomOut() {
         zoomLevel = Math.max(ZOOM_MIN, +(zoomLevel - ZOOM_STEP).toFixed(2));
         applyZoom();
       }
-
       function zoomReset() {
         zoomLevel = 1;
         $pdfWrap.scrollTop = 0;
@@ -1064,207 +1180,223 @@
         applyZoom();
       }
 
-      // Tombol zoom
       document.getElementById('zoomIn').addEventListener('click', zoomIn);
       document.getElementById('zoomOut').addEventListener('click', zoomOut);
       document.getElementById('zoomReset').addEventListener('click', zoomReset);
 
-      // Ctrl + Scroll (desktop)
       $pdfWrap.addEventListener(
         'wheel',
         function (e) {
-          if (e.ctrlKey || e.metaKey) {
+          if ((e.ctrlKey || e.metaKey) && !isFrozen) {
             e.preventDefault();
-            if (e.deltaY < 0) zoomIn();
-            else zoomOut();
+            e.deltaY < 0 ? zoomIn() : zoomOut();
           }
         },
         { passive: false },
       );
 
-      // Pinch-to-zoom (mobile) — dua jari di area PDF
-      var _pinchDist0 = 0,
-        _pinchZoom0 = 1,
-        _isPinching = false;
-
-      function touchDist(t) {
-        var dx = t[0].clientX - t[1].clientX;
-        var dy = t[0].clientY - t[1].clientY;
+      var _pinchD0 = 0,
+        _pinchZ0 = 1,
+        _isPinch = false;
+      function tDist(t) {
+        var dx = t[0].clientX - t[1].clientX,
+          dy = t[0].clientY - t[1].clientY;
         return Math.sqrt(dx * dx + dy * dy);
       }
-
       $pdfWrap.addEventListener(
         'touchstart',
         function (e) {
-          if (e.touches.length === 2) {
-            _pinchDist0 = touchDist(e.touches);
-            _pinchZoom0 = zoomLevel;
-            _isPinching = true;
+          if (e.touches.length === 2 && !isFrozen) {
+            _pinchD0 = tDist(e.touches);
+            _pinchZ0 = zoomLevel;
+            _isPinch = true;
           }
         },
         { passive: true },
       );
-
       $pdfWrap.addEventListener(
         'touchmove',
         function (e) {
-          if (_isPinching && e.touches.length === 2) {
-            e.preventDefault(); // cegah browser zoom bawaan
-            var dist = touchDist(e.touches);
-            var scale = dist / Math.max(1, _pinchDist0);
-            zoomLevel = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, +(_pinchZoom0 * scale).toFixed(2)));
+          if (_isPinch && e.touches.length === 2) {
+            e.preventDefault();
+            var s = tDist(e.touches) / Math.max(1, _pinchD0);
+            zoomLevel = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, +(_pinchZ0 * s).toFixed(2)));
             applyZoom();
           }
         },
         { passive: false },
       );
-
       $pdfWrap.addEventListener(
         'touchend',
         function (e) {
-          if (e.touches.length < 2) _isPinching = false;
+          if (e.touches.length < 2) _isPinch = false;
         },
         { passive: true },
       );
-
-      // Re-apply zoom saat ukuran berubah (rotasi layar, dll)
       window.addEventListener('resize', function () {
         if (!$test.classList.contains('hidden')) applyZoom();
       });
 
-      // ===========================
-      // ====== END ZOOM ==========
-      // ===========================
-
-      // ====== Update UI ======
-      function updateUI() {
-        $curNum.textContent = currentSoal;
-        $prevBtn.disabled = currentSoal <= 1 || isSubmitted;
-        $nextBtn.disabled = currentSoal >= TOTAL_SOAL || isSubmitted;
-        $submitBtn.disabled = isSubmitted;
-
-        var sel = jawaban[currentSoal] || null;
-        var abtns = $answerRow.querySelectorAll('.answer-btn');
-        for (var i = 0; i < abtns.length; i++) {
-          if (abtns[i].dataset.a === sel) abtns[i].classList.add('selected');
-          else abtns[i].classList.remove('selected');
-          abtns[i].disabled = isSubmitted;
+      // ===================== AUDIO =====================
+      function updateAudioBtn() {
+        var has = AUDIO_MAP[currentSoal];
+        var canPlay = has && !isSubmitted && !isFrozen;
+        if (canPlay) {
+          $audioBtn.classList.add('vis');
+          if (isAudioPlaying) {
+            $audioBtn.classList.add('playing');
+            $audioBtn.querySelector('.material-icons-round').textContent = 'stop';
+          } else {
+            $audioBtn.classList.remove('playing');
+            $audioBtn.querySelector('.material-icons-round').textContent = 'headphones';
+          }
+        } else {
+          $audioBtn.classList.remove('vis', 'playing');
+          $audioBtn.querySelector('.material-icons-round').textContent = 'headphones';
         }
+      }
 
-        if (sel) $qDot.classList.add('on');
-        else $qDot.classList.remove('on');
+      function toggleAudio() {
+        if (isFrozen || isSubmitted) return;
+        if (isAudioPlaying) {
+          stopAudio();
+          return;
+        }
+        var url = AUDIO_MAP[currentSoal];
+        if (!url) return;
+        stopAudio();
+        currentAudio = new Audio(url);
+        currentAudio.play().catch(function (e) {
+          console.warn('Audio error:', e);
+          showToast('Gagal memutar audio', 'error_outline');
+        });
+        isAudioPlaying = true;
+        currentAudio.addEventListener('ended', function () {
+          isAudioPlaying = false;
+          updateAudioBtn();
+        });
+        currentAudio.addEventListener('error', function () {
+          isAudioPlaying = false;
+          updateAudioBtn();
+          showToast('Audio tidak ditemukan', 'error_outline');
+        });
+        updateAudioBtn();
+      }
 
+      function stopAudio() {
+        if (currentAudio) {
+          try {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+          } catch (_) {}
+          currentAudio = null;
+        }
+        isAudioPlaying = false;
+        updateAudioBtn();
+      }
+
+      $audioBtn.addEventListener('click', toggleAudio);
+
+      // ===================== TIMER =====================
+      function startTimer() {
+        stopTimer();
+        updateTimerDisplay();
+        _saveTick = 0;
+        timerInterval = setInterval(function () {
+          if (isFrozen || isSubmitted) return;
+          remainingTime = Math.max(0, remainingTime - 1);
+          _saveTick++;
+          if (_saveTick % 10 === 0) simpanSesi();
+          updateTimerDisplay();
+          if (remainingTime <= 0) freezeApp();
+        }, 1000);
+      }
+
+      function stopTimer() {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }
+
+      function updateTimerDisplay() {
+        var m = Math.floor(remainingTime / 60),
+          s = remainingTime % 60;
+        $timerDisplay.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        $timerStrip.classList.remove('warn', 'crit');
+        if (remainingTime <= 60) $timerStrip.classList.add('crit');
+        else if (remainingTime <= 300) $timerStrip.classList.add('warn');
+      }
+
+      // ===================== FREEZE (waktu habis) =====================
+      async function freezeApp() {
+        isFrozen = true;
+        stopTimer();
+        stopAudio();
+
+        // Bekukan semua kontrol
+        $prevBtn.disabled = true;
+        $nextBtn.disabled = true;
+        $answerRow.querySelectorAll('.answer-btn').forEach(function (b) {
+          b.disabled = true;
+        });
+        $audioBtn.disabled = true;
+        document.getElementById('zoomIn').disabled = true;
+        document.getElementById('zoomOut').disabled = true;
+        document.getElementById('zoomReset').disabled = true;
+
+        // Overlay gelap
+        var freezeOv = document.createElement('div');
+        freezeOv.className = 'freeze-overlay';
+        document.body.appendChild(freezeOv);
+
+        // Dialog waktu habis — TANPA tombol batal
         var total = Object.keys(jawaban).length;
-        $progFill.style.width = (total / TOTAL_SOAL) * 100 + '%';
-      }
-
-      // ====== Navigasi ======
-      function pindahSoal(arah) {
-        if (isSubmitted) return;
-        // Nonaktifkan swipe saat zoom > 1.1 (prioritas scroll PDF)
-        if (zoomLevel > 1.1 && arah !== 0) return;
-        var n = currentSoal + arah;
-        if (n < 1 || n > TOTAL_SOAL) return;
-        currentSoal = n;
-        simpanSesi();
-        updateUI();
-      }
-
-      // ====== Pilih Jawaban ======
-      function pilihJawaban(jwb) {
-        if (isSubmitted) return;
-        var prev = jawaban[currentSoal];
-        jawaban[currentSoal] = jwb;
-        updateUI();
-        simpanSesi();
-        if (prev !== jwb) showToast('Soal ' + currentSoal + ' \u2192 ' + jwb);
-      }
-
-      // ====== Kirim ke Google Sheets ======
-      function kirimKeSheet(payload) {
-        var params = new URLSearchParams();
-        params.append('payload', JSON.stringify(payload));
-        return fetch(GOOGLE_SHEET_URL, { method: 'POST', mode: 'no-cors', body: params });
-      }
-
-      // ====== SUBMIT ======
-      async function handleSubmit() {
-        if (isSubmitted) return;
-
-        var total = Object.keys(jawaban).length;
-        var belum = TOTAL_SOAL - total;
         var rawUrl = GOOGLE_SHEET_URL.trim();
-        var hasUrl = rawUrl.length > 0;
-        var urlOk = hasUrl && /\/exec$/.test(rawUrl);
-        var canSend = hasUrl && urlOk;
-
-        var gridHtml = '';
-        for (var i = 1; i <= TOTAL_SOAL; i++) {
-          var j = jawaban[i] || '-';
-          var clr = jawaban[i] ? 'color:var(--accent-light)' : 'color:var(--muted);opacity:.5';
-          gridHtml += '<span style="' + clr + '">' + i + '.' + j + '</span>';
-        }
-
-        var warnHtml = '';
-        if (belum > 0) warnHtml += '<div class="warn"><span class="material-icons-round" style="font-size:15px">warning_amber</span> ' + belum + ' soal belum dijawab</div>';
-        if (!hasUrl) warnHtml += '<div class="warn" style="margin-top:4px"><span class="material-icons-round" style="font-size:15px">cloud_off</span> Google Sheets belum dikonfigurasi</div>';
-        else if (!urlOk) warnHtml += '<div class="warn" style="margin-top:4px"><span class="material-icons-round" style="font-size:15px">error_outline</span> URL harus berakhiran /exec</div>';
-
+        var canSend = rawUrl.length > 0 && /\/exec$/.test(rawUrl);
         var cLabel = canSend ? 'Kirim Sekarang' : 'Simpan Lokal';
         var cClass = canSend ? 'green' : 'amber';
 
         var ov = document.createElement('div');
         ov.className = 'dialog-overlay';
+        ov.style.zIndex = '510';
         ov.innerHTML =
           '<div class="dialog-box">' +
-          '<span class="material-icons-round dlg-icon" style="color:var(--amber)">send</span>' +
-          '<h3>Kirim Jawaban</h3>' +
-          '<div style="margin:12px 0 4px;">' +
+          '<span class="material-icons-round dlg-icon" style="color:var(--danger)">timer_off</span>' +
+          '<h3>Waktu Habis</h3>' +
+          '<p>Batas waktu ' +
+          TIMER_MINUTES +
+          ' menit telah berakhir.</p>' +
+          '<div style="margin:12px 0 0;">' +
           '<div class="summary-row"><span class="summary-label">Nama</span><span class="summary-val">' +
           userName +
           '</span></div>' +
-          '<div class="summary-row"><span class="summary-label">Dijawab</span><span class="summary-val">' +
+          '<div class="summary-row"><span class="summary-label">Terjawab</span><span class="summary-val">' +
           total +
           ' / ' +
           TOTAL_SOAL +
           '</span></div>' +
           '</div>' +
-          '<div class="answer-grid">' +
-          gridHtml +
-          '</div>' +
-          warnHtml +
           '<div class="actions">' +
-          '<button class="btn-dlg cancel" id="submitCancel">Batal</button>' +
           '<button class="btn-dlg ' +
           cClass +
-          '" id="submitConfirm">' +
+          '" id="timeUpBtn" style="flex:1">' +
           cLabel +
           '</button>' +
           '</div>' +
           '</div>';
         document.body.appendChild(ov);
 
-        var userConfirmed = await new Promise(function (resolve) {
-          document.getElementById('submitCancel').addEventListener('click', function () {
-            ov.remove();
-            resolve(false);
-          });
-          document.getElementById('submitConfirm').addEventListener('click', function () {
+        await new Promise(function (resolve) {
+          document.getElementById('timeUpBtn').addEventListener('click', function () {
             this.innerHTML = '<span class="spinner"></span>';
             this.disabled = true;
             this.style.opacity = '0.7';
             resolve(true);
           });
-          ov.addEventListener('click', function (e) {
-            if (e.target === ov) {
-              ov.remove();
-              resolve(false);
-            }
-          });
         });
 
-        if (!userConfirmed) return;
-
+        // Kirim
         var sendOk = true;
         if (canSend) {
           try {
@@ -1275,13 +1407,69 @@
               }),
             ]);
           } catch (e) {
-            console.warn('Gagal kirim:', e);
             sendOk = false;
           }
         }
 
         ov.remove();
+        freezeOv.remove();
+        await finishSubmit(canSend, sendOk, total);
+      }
+
+      // ===================== UPDATE UI =====================
+      function updateUI() {
+        $curNum.textContent = currentSoal;
+        $prevBtn.disabled = currentSoal <= 1 || isSubmitted || isFrozen;
+        $nextBtn.disabled = currentSoal >= TOTAL_SOAL || isSubmitted || isFrozen;
+        $submitBtn.disabled = isSubmitted || isFrozen;
+
+        var sel = jawaban[currentSoal] || null;
+        $answerRow.querySelectorAll('.answer-btn').forEach(function (b) {
+          b.classList.toggle('selected', b.dataset.a === sel);
+          b.disabled = isSubmitted || isFrozen;
+        });
+
+        if (sel) $qDot.classList.add('on');
+        else $qDot.classList.remove('on');
+        $progFill.style.width = (Object.keys(jawaban).length / TOTAL_SOAL) * 100 + '%';
+        updateAudioBtn();
+      }
+
+      // ===================== NAVIGASI =====================
+      function pindahSoal(arah) {
+        if (isSubmitted || isFrozen) return;
+        if (zoomLevel > 1.1) return; // swipe nonaktif saat zoom
+        var n = currentSoal + arah;
+        if (n < 1 || n > TOTAL_SOAL) return;
+        stopAudio();
+        currentSoal = n;
+        simpanSesi();
+        updateUI();
+      }
+
+      // ===================== JAWABAN =====================
+      function pilihJawaban(jwb) {
+        if (isSubmitted || isFrozen) return;
+        var prev = jawaban[currentSoal];
+        jawaban[currentSoal] = jwb;
+        updateUI();
+        simpanSesi();
+        if (prev !== jwb) showToast('Soal ' + currentSoal + ' \u2192 ' + jwb);
+      }
+
+      // ===================== KIRIM SHEETS =====================
+      function kirimKeSheet(payload) {
+        var p = new URLSearchParams();
+        p.append('payload', JSON.stringify(payload));
+        return fetch(GOOGLE_SHEET_URL, { method: 'POST', mode: 'no-cors', body: p });
+      }
+
+      // ===================== FINISH SUBMIT (shared) =====================
+      async function finishSubmit(canSend, sendOk, total) {
         isSubmitted = true;
+        isFrozen = true;
+        stopTimer();
+        stopAudio();
         hapusSesi();
 
         var sIcon = canSend && sendOk ? 'cloud_done' : 'save';
@@ -1317,11 +1505,105 @@
         $doneText.textContent = 'Terkirim \u2014 ' + total + '/' + TOTAL_SOAL;
         $submitBtn.classList.add('done');
         $submitBtn.querySelector('.material-icons-round').textContent = 'check';
+        $submitBtn.disabled = true;
+        $timerStrip.style.display = 'none';
         updateUI();
         showToast(sTitle, sIcon);
       }
 
-      // ====== Ganti Layar ======
+      // ===================== SUBMIT MANUAL =====================
+      async function handleSubmit() {
+        if (isSubmitted || isFrozen) return;
+
+        var total = Object.keys(jawaban).length;
+        var belum = TOTAL_SOAL - total;
+        var rawUrl = GOOGLE_SHEET_URL.trim();
+        var canSend = rawUrl.length > 0 && /\/exec$/.test(rawUrl);
+
+        var gridHtml = '';
+        for (var i = 1; i <= TOTAL_SOAL; i++) {
+          var j = jawaban[i] || '-';
+          var clr = jawaban[i] ? 'color:var(--accent-light)' : 'color:var(--muted);opacity:.5';
+          gridHtml += '<span style="' + clr + '">' + i + '.' + j + '</span>';
+        }
+
+        var warnHtml = '';
+        if (belum > 0) warnHtml += '<div class="warn"><span class="material-icons-round" style="font-size:15px">warning_amber</span> ' + belum + ' soal belum dijawab</div>';
+        if (!rawUrl.length) warnHtml += '<div class="warn" style="margin-top:4px"><span class="material-icons-round" style="font-size:15px">cloud_off</span> Google Sheets belum dikonfigurasi</div>';
+        else if (!/\/exec$/.test(rawUrl)) warnHtml += '<div class="warn" style="margin-top:4px"><span class="material-icons-round" style="font-size:15px">error_outline</span> URL harus berakhiran /exec</div>';
+
+        var cLabel = canSend ? 'Kirim Sekarang' : 'Simpan Lokal';
+        var cClass = canSend ? 'green' : 'amber';
+
+        var ov = document.createElement('div');
+        ov.className = 'dialog-overlay';
+        ov.innerHTML =
+          '<div class="dialog-box">' +
+          '<span class="material-icons-round dlg-icon" style="color:var(--amber)">send</span>' +
+          '<h3>Kirim Jawaban</h3>' +
+          '<div style="margin:12px 0 4px;">' +
+          '<div class="summary-row"><span class="summary-label">Nama</span><span class="summary-val">' +
+          userName +
+          '</span></div>' +
+          '<div class="summary-row"><span class="summary-label">Dijawab</span><span class="summary-val">' +
+          total +
+          ' / ' +
+          TOTAL_SOAL +
+          '</span></div>' +
+          '</div>' +
+          '<div class="answer-grid">' +
+          gridHtml +
+          '</div>' +
+          warnHtml +
+          '<div class="actions">' +
+          '<button class="btn-dlg cancel" id="sCancel">Batal</button>' +
+          '<button class="btn-dlg ' +
+          cClass +
+          '" id="sConfirm">' +
+          cLabel +
+          '</button>' +
+          '</div>' +
+          '</div>';
+        document.body.appendChild(ov);
+
+        var ok = await new Promise(function (resolve) {
+          document.getElementById('sCancel').addEventListener('click', function () {
+            ov.remove();
+            resolve(false);
+          });
+          document.getElementById('sConfirm').addEventListener('click', function () {
+            this.innerHTML = '<span class="spinner"></span>';
+            this.disabled = true;
+            this.style.opacity = '0.7';
+            resolve(true);
+          });
+          ov.addEventListener('click', function (e) {
+            if (e.target === ov) {
+              ov.remove();
+              resolve(false);
+            }
+          });
+        });
+        if (!ok) return;
+
+        var sendOk = true;
+        if (canSend) {
+          try {
+            await Promise.all([
+              kirimKeSheet({ nama: userName, total: TOTAL_SOAL, jawaban: jawaban, waktu: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) }),
+              new Promise(function (r) {
+                setTimeout(r, 1500);
+              }),
+            ]);
+          } catch (e) {
+            sendOk = false;
+          }
+        }
+        ov.remove();
+        await finishSubmit(canSend, sendOk, total);
+      }
+
+      // ===================== SCREEN =====================
       function showScreen(target) {
         $welcome.classList.remove('visible');
         $welcome.classList.add('hidden');
@@ -1331,7 +1613,7 @@
         target.classList.add('visible');
       }
 
-      // ====== Mulai Tes ======
+      // ===================== MULAI TES =====================
       function mulaiTes() {
         userName = $nameInput.value.trim();
         if (!userName) return;
@@ -1339,31 +1621,43 @@
         currentSoal = 1;
         jawaban = {};
         isSubmitted = false;
+        isFrozen = false;
         zoomLevel = 1;
+        remainingTime = TIMER_MINUTES * 60;
         $pdfFrame.src = PDF_URL;
         $pdfFrame.style.transform = '';
         $pdfFrame.style.marginRight = '';
         $pdfFrame.style.marginBottom = '';
         $resetBtn.style.display = 'block';
         $zoomBar.style.display = 'flex';
+        $timerStrip.style.display = 'flex';
         $panel.classList.remove('submitted');
         $submitBtn.classList.remove('done');
         $submitBtn.querySelector('.material-icons-round').textContent = 'send';
         showScreen($test);
-        // Tunggu iframe & wrapper siap, lalu apply zoom awal
-        setTimeout(applyZoom, 100);
+        setTimeout(function () {
+          applyZoom();
+          startTimer();
+        }, 120);
         simpanSesi();
         updateUI();
         showToast('Tes dimulai \u2014 ' + userName);
       }
 
-      // ====== Lanjutkan Sesi ======
+      // ===================== LANJUTKAN SESI =====================
       function lanjutkanSesi(s) {
         userName = s.nama || '';
         currentSoal = s.currentSoal || 1;
         jawaban = s.jawaban || {};
         isSubmitted = false;
+        isFrozen = false;
         zoomLevel = 1;
+        // Hitung sisa waktu
+        remainingTime = s.remainingTime || TIMER_MINUTES * 60;
+        if (s.ts) {
+          var elapsed = Math.floor((Date.now() - s.ts) / 1000);
+          remainingTime = Math.max(0, remainingTime - elapsed);
+        }
         $nameInput.value = userName;
         $pdfFrame.src = PDF_URL;
         $pdfFrame.style.transform = '';
@@ -1371,18 +1665,26 @@
         $pdfFrame.style.marginBottom = '';
         $resetBtn.style.display = 'block';
         $zoomBar.style.display = 'flex';
+        $timerStrip.style.display = 'flex';
         $panel.classList.remove('submitted');
         $submitBtn.classList.remove('done');
         $submitBtn.querySelector('.material-icons-round').textContent = 'send';
         showScreen($test);
-        setTimeout(applyZoom, 100);
+        setTimeout(function () {
+          applyZoom();
+          if (remainingTime <= 0) {
+            freezeApp();
+          } else {
+            startTimer();
+          }
+        }, 120);
         updateUI();
         showToast('Lanjutkan \u2014 ' + userName, 'history');
       }
 
-      // ====== Reset ======
+      // ===================== RESET =====================
       async function handleReset() {
-        if (!isSubmitted && Object.keys(jawaban).length > 0) {
+        if (!isSubmitted && !isFrozen && Object.keys(jawaban).length > 0) {
           var ok = await showDialog(
             '<span class="material-icons-round dlg-icon" style="color:var(--danger)">warning_amber</span>' +
               '<h3>Hapus Sesi?</h3><p>Semua jawaban yang belum dikirim akan hilang.</p>' +
@@ -1390,23 +1692,31 @@
           );
           if (!ok) return;
         }
+        stopTimer();
+        stopAudio();
         hapusSesi();
         isSubmitted = false;
+        isFrozen = false;
         zoomLevel = 1;
+        remainingTime = TIMER_MINUTES * 60;
         $pdfFrame.src = 'about:blank';
         $pdfFrame.style.transform = '';
         $pdfFrame.style.marginRight = '';
         $pdfFrame.style.marginBottom = '';
         $resetBtn.style.display = 'none';
         $zoomBar.style.display = 'none';
+        $timerStrip.style.display = 'none';
         $progFill.style.width = '0%';
+        // Hapus freeze overlay jika ada
+        var fo = document.querySelector('.freeze-overlay');
+        if (fo) fo.remove();
         showScreen($welcome);
         setTimeout(function () {
           $nameInput.focus();
         }, 400);
       }
 
-      // ====== Events ======
+      // ===================== EVENTS =====================
       $nameInput.addEventListener('input', function () {
         $startBtn.disabled = !this.value.trim();
       });
@@ -1438,9 +1748,8 @@
 
       // Keyboard
       document.addEventListener('keydown', function (e) {
-        if ($test.classList.contains('hidden')) return;
+        if ($test.classList.contains('hidden') || isFrozen) return;
         if (document.querySelector('.dialog-overlay')) return;
-        // Ctrl+= / Ctrl+- / Ctrl+0 untuk zoom
         if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+')) {
           e.preventDefault();
           zoomIn();
@@ -1491,13 +1800,13 @@
         }
       });
 
-      // Swipe navigasi (nonaktif saat zoom > 1.1)
+      // Swipe
       var _tx = 0,
         _ty = 0;
       document.addEventListener(
         'touchstart',
         function (e) {
-          if ($test.classList.contains('hidden') || e.target.closest('.floating-panel') || document.querySelector('.dialog-overlay')) return;
+          if ($test.classList.contains('hidden') || isFrozen || e.target.closest('.floating-panel') || document.querySelector('.dialog-overlay')) return;
           if (e.touches.length === 1) {
             _tx = e.touches[0].clientX;
             _ty = e.touches[0].clientY;
@@ -1508,18 +1817,16 @@
       document.addEventListener(
         'touchend',
         function (e) {
-          if ($test.classList.contains('hidden') || e.target.closest('.floating-panel') || document.querySelector('.dialog-overlay')) return;
-          if (e.changedTouches.length !== 1) return;
-          // Jangan swipe jika sedang pinch-zoom atau zoom aktif
-          if (zoomLevel > 1.1) return;
-          var dx = e.changedTouches[0].clientX - _tx;
-          var dy = e.changedTouches[0].clientY - _ty;
+          if ($test.classList.contains('hidden') || isFrozen || e.target.closest('.floating-panel') || document.querySelector('.dialog-overlay')) return;
+          if (e.changedTouches.length !== 1 || zoomLevel > 1.1) return;
+          var dx = e.changedTouches[0].clientX - _tx,
+            dy = e.changedTouches[0].clientY - _ty;
           if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.6) pindahSoal(dx < 0 ? 1 : -1);
         },
         { passive: true },
       );
 
-      // ====== Init ======
+      // ===================== INIT =====================
       (function () {
         var s = muatSesi();
         if (s && s.nama) {
